@@ -1,0 +1,48 @@
+---
+# Tasks to deploy Jenkins and Docker Cloud using Docker Compose
+# Tags: setup, deploy, always
+
+- name: Create Docker Compose directory
+  file:
+    path: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+    state: directory
+    mode: '0755'
+  tags:
+    - setup
+    - deploy
+    - always
+
+- name: Generate Docker Compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ jenkins_compose_dir | default('/opt/jenkins') }}/docker-compose.yml"
+    mode: '0644'
+  tags:
+    - setup
+    - deploy
+    - compose
+    - always
+
+- name: Deploy Jenkins stack with Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+  register: compose_result
+  changed_when: "'Recreating' in compose_result.stdout or 'Creating' in compose_result.stdout or 'Starting' in compose_result.stdout"
+  tags:
+    - setup
+    - deploy
+    - compose
+    - always
+
+- name: Wait for Jenkins to be ready
+  wait_for:
+    host: localhost
+    port: "{{ jenkins_host_port }}"
+    timeout: 120
+    delay: 10
+  register: jenkins_ready
+  tags:
+    - setup
+    - deploy
+    - always

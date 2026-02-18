@@ -1,0 +1,78 @@
+---
+# Playbook to update Jenkins users only
+# Use this playbook when you only need to manage users
+#
+# Usage:
+#   # Add/update users
+#   ansible-playbook update_users.yml -e "target_hosts=all"
+#
+#   # With custom users file
+#   ansible-playbook update_users.yml -e "target_hosts=all" \
+#     -e "additional_users=[{'id': 'dev', 'password': 'pass123', 'name': 'Developer'}]"
+
+- name: Update Jenkins Users
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  vars:
+    jenkins_admin_user: "admin"
+    jenkins_admin_password: "admin"
+    jenkins_host_port: 8080
+
+  pre_tasks:
+    - name: Check if Jenkins is running
+      command: docker ps --filter name={{ jenkins_container_name | default('jenkins') }} --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: jenkins_running
+      changed_when: false
+      failed_when: jenkins_running.stdout == ""
+      tags:
+        - users
+        - always
+
+    - name: Wait for Jenkins to be ready
+      wait_for:
+        host: localhost
+        port: "{{ jenkins_host_port }}"
+        timeout: 60
+        delay: 5
+      tags:
+        - users
+        - always
+
+  tasks:
+    - name: Load additional users configuration
+      include_vars:
+        file: "{{ role_path | default('.') }}/files/users.yml"
+      when: additional_users is not defined
+      tags:
+        - users
+        - always
+
+    - name: Create JCasC configuration directory
+      file:
+        path: "{{ role_path | default('.') }}/files/jcasc"
+        state: directory
+      tags:
+        - users
+        - jcasc
+        - always
+
+    - name: Generate JCasC users configuration
+      template:
+        src: templates/jcasc-users.yaml.j2
+        dest: "{{ role_path | default('.') }}/files/jcasc/jcasc-users.yaml"
+        mode: '0644'
+      tags:
+        - users
+        - jcasc
+        - always
+
+    - name: Reload JCasC configuration
+      uri:
+        url: "http://localhost:{{ jenkins_host_port }}/reload-configuration-as-code"
+        method: POST
+        status_code: [200, 302, 403]
+      tags:
+        - users
+        - jcasc
+        - reload

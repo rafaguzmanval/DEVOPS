@@ -1,0 +1,169 @@
+---
+# Tasks to configure Jenkins (plugins, JCasC, jobs)
+# Tags: setup, configure, jobs, plugins, users, credentials, docker-cloud
+
+- name: Load plugins list
+  include_vars:
+    file: "{{ role_path }}/files/plugins.yml"
+  tags:
+    - setup
+    - configure
+    - plugins
+    - always
+
+- name: Install Jenkins plugins
+  command: >
+    docker exec {{ jenkins_container_name }}
+    jenkins-plugin-cli --plugins {{ plugins | join(' ') }}
+  args:
+    creates: /tmp/jenkins_plugins_installed
+  register: plugins_result
+  changed_when: plugins_result.rc == 0
+  tags:
+    - setup
+    - configure
+    - plugins
+    - always
+
+- name: Load additional users configuration
+  include_vars:
+    file: "{{ role_path }}/files/users.yml"
+  when: additional_users is not defined
+  tags:
+    - setup
+    - configure
+    - users
+    - always
+
+- name: Load additional credentials configuration
+  include_vars:
+    file: "{{ role_path }}/files/credentials.yml"
+  when: additional_credentials is not defined
+  tags:
+    - setup
+    - configure
+    - credentials
+    - always
+
+- name: Create JCasC configuration directory on host
+  file:
+    path: "{{ role_path }}/files/jcasc"
+    state: directory
+  tags:
+    - setup
+    - configure
+    - jcasc
+    - always
+
+- name: Generate main JCasC configuration
+  template:
+    src: jcasc.yaml.j2
+    dest: "{{ role_path }}/files/jcasc/jcasc.yaml"
+    mode: '0644'
+  tags:
+    - setup
+    - configure
+    - jcasc
+    - always
+
+- name: Generate JCasC users configuration
+  template:
+    src: jcasc-users.yaml.j2
+    dest: "{{ role_path }}/files/jcasc/jcasc-users.yaml"
+    mode: '0644'
+  tags:
+    - setup
+    - configure
+    - users
+    - jcasc
+    - always
+
+- name: Generate JCasC credentials configuration
+  template:
+    src: jcasc-credentials.yaml.j2
+    dest: "{{ role_path }}/files/jcasc/jcasc-credentials.yaml"
+    mode: '0644'
+  tags:
+    - setup
+    - configure
+    - credentials
+    - jcasc
+    - always
+
+- name: Generate JCasC Docker Cloud configuration
+  template:
+    src: jcasc-cloud.yaml.j2
+    dest: "{{ role_path }}/files/jcasc/jcasc-cloud.yaml"
+    mode: '0644'
+  tags:
+    - setup
+    - configure
+    - docker-cloud
+    - jcasc
+    - always
+
+- name: Reload Jenkins to apply JCasC configuration
+  uri:
+    url: "http://localhost:{{ jenkins_host_port }}/reload-configuration-as-code"
+    method: POST
+    status_code: [200, 302, 403]
+  ignore_errors: true
+  when: jenkins_ready.success | default(false)
+  tags:
+    - setup
+    - configure
+    - jcasc
+    - reload
+    - always
+
+- name: Create Jenkins initialization scripts directory
+  file:
+    path: "{{ role_path }}/files/jenkins_init"
+    state: directory
+  tags:
+    - setup
+    - configure
+    - always
+
+- name: Generate init.groovy for initial setup
+  template:
+    src: init.groovy.j2
+    dest: "{{ role_path }}/files/jenkins_init/init.groovy"
+    mode: '0644'
+  tags:
+    - setup
+    - configure
+    - always
+
+- name: Copy init.groovy to Jenkins container
+  docker_container_copy:
+    container: "{{ jenkins_container_name }}"
+    src: "{{ role_path }}/files/jenkins_init/init.groovy"
+    dest: "/var/jenkins_home/init.groovy"
+  ignore_errors: true
+  tags:
+    - setup
+    - configure
+    - always
+
+- name: Load jobs configuration
+  find:
+    paths: "{{ role_path }}/files/jobs"
+    patterns: "*.yml"
+  register: jobs_files
+  tags:
+    - setup
+    - configure
+    - jobs
+    - always
+
+- name: Process each job file
+  include_tasks: tasks/create_job.yml
+  loop: "{{ jobs_files.files }}"
+  loop_control:
+    loop_var: job_file
+  tags:
+    - setup
+    - configure
+    - jobs
+    - always

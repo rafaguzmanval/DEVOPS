@@ -1,0 +1,39 @@
+---
+# Task to create a single Jenkins job
+
+- name: Load job configuration
+  include_vars:
+    file: "{{ job_file.path }}"
+  vars:
+    job_config: {}
+
+- name: Set job facts
+  set_fact:
+    current_job_name: "{{ name }}"
+    current_job_git_url: "{{ git_url }}"
+    current_job_branch: "{{ branch }}"
+    current_job_path: "{{ path }}"
+
+- name: Create job directory on host
+  file:
+    path: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}"
+    state: directory
+
+- name: Generate job config.xml
+  template:
+    src: job_config.xml.j2
+    dest: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}/config.xml"
+    mode: '0644'
+
+- name: Copy job config to Jenkins container
+  docker_container_copy:
+    container: "{{ jenkins_container_name }}"
+    src: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}/config.xml"
+    dest: "/var/jenkins_home/jobs/{{ name }}/config.xml"
+
+- name: Reload Jenkins configuration
+  uri:
+    url: "http://localhost:{{ jenkins_host_port }}/reload"
+    method: POST
+    status_code: [200, 302, 403]
+  ignore_errors: true

@@ -1,0 +1,60 @@
+---
+# Playbook to add/update Jenkins jobs only
+# Use this playbook when you only need to manage jobs
+#
+# Usage:
+#   # Add/update all jobs defined in files/jobs/
+#   ansible-playbook update_jobs.yml -e "target_hosts=all"
+#
+#   # With custom Jenkins URL
+#   ansible-playbook update_jobs.yml -e "target_hosts=all" -e "jenkins_host_port=8080"
+
+- name: Update Jenkins Jobs
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  vars:
+    jenkins_host_port: 8080
+
+  pre_tasks:
+    - name: Check if Jenkins is running
+      command: docker ps --filter name={{ jenkins_container_name | default('jenkins') }} --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: jenkins_running
+      changed_when: false
+      failed_when: jenkins_running.stdout == ""
+
+    - name: Wait for Jenkins to be ready
+      wait_for:
+        host: localhost
+        port: "{{ jenkins_host_port }}"
+        timeout: 60
+        delay: 5
+
+  tasks:
+    - name: Load jobs configuration
+      find:
+        paths: "{{ role_path | default('.') }}/files/jobs"
+        patterns: "*.yml"
+      register: jobs_files
+      tags:
+        - jobs
+        - always
+
+    - name: Process each job file
+      include_tasks: tasks/create_job.yml
+      loop: "{{ jobs_files.files }}"
+      loop_control:
+        loop_var: job_file
+      tags:
+        - jobs
+        - always
+
+    - name: Reload Jenkins configuration
+      uri:
+        url: "http://localhost:{{ jenkins_host_port }}/reload"
+        method: POST
+        status_code: [200, 302, 403]
+      ignore_errors: true
+      tags:
+        - jobs
+        - reload

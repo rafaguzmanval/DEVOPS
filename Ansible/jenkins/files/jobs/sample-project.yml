@@ -1,0 +1,8 @@
+---
+# Job: sample-project
+# Git repository: https://github.com/rafaguzmanval/DEVOPS
+
+name: "sample-project"
+git_url: "https://github.com/rafaguzmanval/DEVOPS"
+branch: "main"
+path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"

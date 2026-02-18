@@ -1,0 +1,31 @@
+# Jenkins Configuration as Code - Users & Security
+# This file configures Jenkins users and security
+# Managed by Ansible - Do not edit manually
+
+jenkins:
+  # Security configuration
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "{{ jenkins_admin_user }}"
+          password: "{{ jenkins_admin_password }}"
+          name: "Administrator"
+          email: "{{ jenkins_admin_email | default('admin@localhost') }}"
+
+        {% if additional_users is defined %}
+        {% for user in additional_users %}
+        - id: "{{ user.id }}"
+          password: "{{ user.password }}"
+          name: "{{ user.name | default('') }}"
+          email: "{{ user.email | default('') }}"
+        {% endfor %}
+        {% endif %}
+
+  # Authorization strategy
+  authorizationStrategy:
+    fullControlOnceLoggedIn:
+      allowAnonymousRead: false
+
+  # Disable setup wizard
+  disableRememberMe: false

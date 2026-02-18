@@ -1,0 +1,29 @@
+---
+# Playbook for Jenkins Reconfiguration
+# Use this playbook to reconfigure Jenkins without redeploying
+#
+# Usage:
+#   # Full reconfiguration (plugins, JCasC, jobs)
+#   ansible-playbook reconfigure.yml -e "target_hosts=all"
+#
+#   # Only update jobs
+#   ansible-playbook reconfigure.yml -e "target_hosts=all" --tags jobs
+#
+#   # Only update plugins
+#   ansible-playbook reconfigure.yml -e "target_hosts=all" --tags plugins
+#
+#   # Only reload JCasC configuration (users, docker-cloud templates)
+#   ansible-playbook reconfigure.yml -e "target_hosts=all" --tags jcasc
+
+- name: Reconfigure Jenkins
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  vars:
+    # Admin credentials (for JCasC reload)
+    jenkins_admin_user: "admin"
+    jenkins_admin_password: "admin"
+    jenkins_host_port: 8080
+
+  roles:
+    - jenkins

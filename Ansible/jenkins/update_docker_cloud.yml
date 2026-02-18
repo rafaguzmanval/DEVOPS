@@ -1,0 +1,59 @@
+---
+# Playbook to update Docker Cloud configuration
+# Use this playbook to update Docker agent templates without redeploying
+#
+# Usage:
+#   # Update Docker Cloud configuration
+#   ansible-playbook update_docker_cloud.yml -e "target_hosts=all"
+#
+#   # With custom settings
+#   ansible-playbook update_docker_cloud.yml -e "target_hosts=all" \
+#     -e "jenkins_docker_cloud_docker_host=tcp://docker-cloud:2375"
+
+- name: Update Docker Cloud Configuration
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  vars:
+    jenkins_admin_user: "admin"
+    jenkins_admin_password: "admin"
+    jenkins_host_port: 8080
+
+  tasks:
+    - name: Check if Jenkins is running
+      command: docker ps --filter name={{ jenkins_container_name | default('jenkins') }} --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: jenkins_running
+      changed_when: false
+      failed_when: jenkins_running.stdout == ""
+      tags:
+        - docker-cloud
+        - always
+
+    - name: Create JCasC configuration directory
+      file:
+        path: "{{ role_path | default('.') }}/files/jcasc"
+        state: directory
+      tags:
+        - docker-cloud
+        - jcasc
+        - always
+
+    - name: Generate updated JCasC configuration
+      template:
+        src: templates/jcasc.yaml.j2
+        dest: "{{ role_path | default('.') }}/files/jcasc/jcasc.yaml"
+        mode: '0644'
+      tags:
+        - docker-cloud
+        - jcasc
+        - always
+
+    - name: Reload JCasC configuration
+      uri:
+        url: "http://localhost:{{ jenkins_host_port }}/reload-configuration-as-code"
+        method: POST
+        status_code: [200, 302, 403]
+      tags:
+        - docker-cloud
+        - jcasc
+        - reload

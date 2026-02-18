@@ -1,0 +1,50 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.require_version ">= 2.0.0"
+
+Vagrant.configure("2") do |config|
+  # Ubuntu 22.04 LTS
+  config.vm.box = "ubuntu/jammy64"
+
+  # VM configuration for Jenkins
+  config.vm.define "jenkins-server" do |jenkins|
+    jenkins.vm.hostname = "jenkins-server"
+    
+    # Network configuration
+    jenkins.vm.network "private_network", type: "dhcp"
+    jenkins.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true
+    jenkins.vm.network "forwarded_port", guest: 50000, host: 50000, auto_correct: true
+    
+    # VM resources
+    jenkins.vm.provider "virtualbox" do |vb|
+      vb.name = "jenkins-server"
+      vb.memory = "4096"
+      vb.cpus = 2
+      vb.customize ["modifyvm", :id, "--ioapic", "on"]
+      vb.customize ["modifyvm", :id, "--pae", "on"]
+      vb.customize ["modifyvm", :id, "--nestedpaging", "on"]
+      vb.customize ["modifyvm", :id, "--largepages", "on"]
+    end
+    
+    # Ansible provisioning
+    jenkins.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.verbose = ""
+      ansible.host_key_checking = false
+      ansible.galaxy_role_file = nil
+      ansible.become = true
+      ansible.extra_vars = {
+        target_hosts: "all"
+      }
+    end
+  end
+
+  # Global Vagrant settings
+  config.vm.boot_timeout = 600
+  config.ssh.insert_key = false
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+  
+  # Disable default shared folder if not needed
+  # config.vm.synced_folder ".", "/vagrant", disabled: true
+end
