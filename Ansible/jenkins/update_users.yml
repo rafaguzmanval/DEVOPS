@@ -42,7 +42,7 @@
   tasks:
     - name: Load additional users configuration
       include_vars:
-        file: "{{ role_path | default('.') }}/files/users.yml"
+        file: "{{ playbook_dir }}/files/users.yml"
       when: additional_users is not defined
       tags:
         - users
@@ -50,7 +50,7 @@
 
     - name: Create JCasC configuration directory
       file:
-        path: "{{ role_path | default('.') }}/files/jcasc"
+        path: "{{ playbook_dir }}/files/jcasc"
         state: directory
       tags:
         - users
@@ -59,8 +59,8 @@
 
     - name: Generate JCasC users configuration
       template:
-        src: templates/jcasc-users.yaml.j2
-        dest: "{{ role_path | default('.') }}/files/jcasc/jcasc-users.yaml"
+        src: roles/reconfigure/templates/jcasc-users.yaml.j2
+        dest: "{{ playbook_dir }}/files/jcasc/jcasc-users.yaml"
         mode: '0644'
       tags:
         - users

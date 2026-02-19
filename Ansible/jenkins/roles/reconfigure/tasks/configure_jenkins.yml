@@ -27,7 +27,7 @@
 
 - name: Load additional users configuration
   include_vars:
-    file: "{{ role_path }}/files/users.yml"
+    file: "{{ playbook_dir }}/roles/setup/defaults/main.yml"
   when: additional_users is not defined
   tags:
     - setup
@@ -37,7 +37,7 @@
 
 - name: Load additional credentials configuration
   include_vars:
-    file: "{{ role_path }}/files/credentials.yml"
+    file: "{{ playbook_dir }}/roles/setup/defaults/main.yml"
   when: additional_credentials is not defined
   tags:
     - setup
@@ -57,7 +57,7 @@
 
 - name: Generate main JCasC configuration
   template:
-    src: jcasc.yaml.j2
+    src: "{{ playbook_dir }}/roles/setup/templates/jcasc/jcasc.yaml.j2"
     dest: "{{ role_path }}/files/jcasc/jcasc.yaml"
     mode: '0644'
   tags:
@@ -68,7 +68,7 @@
 
 - name: Generate JCasC users configuration
   template:
-    src: jcasc-users.yaml.j2
+    src: "{{ playbook_dir }}/roles/setup/templates/jcasc/jcasc-users.yaml.j2"
     dest: "{{ role_path }}/files/jcasc/jcasc-users.yaml"
     mode: '0644'
   tags:
@@ -80,7 +80,7 @@
 
 - name: Generate JCasC credentials configuration
   template:
-    src: jcasc-credentials.yaml.j2
+    src: "{{ playbook_dir }}/roles/setup/templates/jcasc/jcasc-credentials.yaml.j2"
     dest: "{{ role_path }}/files/jcasc/jcasc-credentials.yaml"
     mode: '0644'
   tags:
@@ -92,7 +92,7 @@
 
 - name: Generate JCasC Docker Cloud configuration
   template:
-    src: jcasc-cloud.yaml.j2
+    src: "{{ playbook_dir }}/roles/setup/templates/jcasc/jcasc-cloud.yaml.j2"
     dest: "{{ role_path }}/files/jcasc/jcasc-cloud.yaml"
     mode: '0644'
   tags:

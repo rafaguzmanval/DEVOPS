@@ -1,0 +1,58 @@
+- name: Create Docker Compose directory
+  file:
+    path: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+    state: directory
+    mode: '0755'
+  tags:
+    - setup
+    - deploy
+    - always
+
+- name: Create Jcasc directory
+  file:
+    path: "{{ jenkins_compose_dir | default('/opt/jenkins') }}/jcasc"
+    state: directory
+    mode: '0755'
+  tags:
+    - setup
+    - deploy
+    - always
+
+- name: Generate Docker Compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ jenkins_compose_dir | default('/opt/jenkins') }}/docker-compose.yml"
+    mode: '0644'
+  tags:
+    - setup
+    - deploy
+    - compose
+    - always
+
+- name: Generate JCasC templates
+  template:
+    src: "jcasc/{{ item }}.j2"
+    dest: "{{ jenkins_compose_dir | default('/opt/jenkins') }}/jcasc/{{ item }}"
+    mode: '0644'
+  loop:
+    - jcasc.yaml
+    - jcasc-users.yaml
+    - jcasc-credentials.yaml
+  tags:
+    - setup
+    - deploy
+    - compose
+    - build
+    - always
+
+- name: Copy Docker build context to remote server
+  copy:
+    src: files/
+    dest: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+    mode: '0644'
+  tags:
+    - setup
+    - deploy
+    - compose
+    - build
+    - always

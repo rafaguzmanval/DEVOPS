@@ -1,0 +1,15 @@
+---
+# Handlers for Jenkins role
+
+- name: Restart Jenkins
+  docker_container:
+    name: "{{ jenkins_container_name }}"
+    state: started
+    restart: true
+
+- name: Reload Jenkins configuration
+  uri:
+    url: "http://localhost:{{ jenkins_host_port }}/reload"
+    method: POST
+    status_code: [200, 302, 403]
+  ignore_errors: true

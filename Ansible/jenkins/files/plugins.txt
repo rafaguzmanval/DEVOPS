@@ -1,0 +1,7 @@
+git
+docker-plugin
+workflow-aggregator
+blueocean
+configuration-as-code
+docker-workflow
+dark-theme

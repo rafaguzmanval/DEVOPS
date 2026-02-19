@@ -14,34 +14,26 @@ services:
     volumes:
       - docker_cloud_data:/var/lib/docker
     environment:
-      - DOCKER_TLS_CERTDIR=
+      - DOCKER_HOST=tcp://0.0.0.0:2375
+      - DOCKER_TLS_VERIFY=
+      - DOCKER_CERT_PATH=
     expose:
       - "2375"
-    ports:
-      - "{{ jenkins_docker_cloud_host_port | default(2375) }}:2375"
-    command:
-      - dockerd
-      - --host=tcp://0.0.0.0:2375
-      - --tls=false
-      - --dns=8.8.8.8
-      - --dns=1.1.1.1
+    command: ["--host", "tcp://0.0.0.0:2375"]
 
-
-  # Jenkins CI/CD service (custom image with pre-installed plugins and config)
+  # Jenkins CI/CD service
   jenkins:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: {{ jenkins_custom_image | default('jenkins-custom:lts') }}
+    image: {{ jenkins_docker_image | default('jenkins/jenkins:lts') }}
     container_name: {{ jenkins_container_name | default('jenkins') }}
     restart: always
     networks:
       - {{ jenkins_docker_cloud_network_name | default('jenkins-network') }}
     ports:
-      - "{{ jenkins_host_port | default(8080) }}:8080"
+      - "{{ jenkins_hostname | default('0.0.0.0') }}:{{ jenkins_host_port | default(8080) }}:8080"
       - "{{ jenkins_agent_port | default(50000) }}:50000"
     volumes:
       - jenkins_data:/var/jenkins_home
+      - {{ role_path }}/files/jcasc:/var/jenkins_home/casc_configs:ro
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Dcasc.jenkins.config=/var/jenkins_home/casc_configs
       - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs

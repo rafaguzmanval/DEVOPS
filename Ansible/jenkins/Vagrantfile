@@ -5,34 +5,33 @@ Vagrant.require_version ">= 2.0.0"
 
 Vagrant.configure("2") do |config|
   # Ubuntu 22.04 LTS
-  config.vm.box = "ubuntu/jammy64"
+  config.vm.box = "bento/ubuntu-24.04"
+
+  # Disable default synced folder (NFS issues with libvirt)
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # VM configuration for Jenkins
   config.vm.define "jenkins-server" do |jenkins|
     jenkins.vm.hostname = "jenkins-server"
-    
+
     # Network configuration
     jenkins.vm.network "private_network", type: "dhcp"
     jenkins.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true
     jenkins.vm.network "forwarded_port", guest: 50000, host: 50000, auto_correct: true
-    
-    # VM resources
-    jenkins.vm.provider "virtualbox" do |vb|
-      vb.name = "jenkins-server"
-      vb.memory = "4096"
-      vb.cpus = 2
-      vb.customize ["modifyvm", :id, "--ioapic", "on"]
-      vb.customize ["modifyvm", :id, "--pae", "on"]
-      vb.customize ["modifyvm", :id, "--nestedpaging", "on"]
-      vb.customize ["modifyvm", :id, "--largepages", "on"]
+
+    # VM resources - Increased for better Docker performance (QEMU/KVM)
+    jenkins.vm.provider "libvirt" do |vb|
+      vb.memory = "8192"        # 8GB RAM for Docker containers
+      vb.cpus = 4               # 4 CPUs for faster builds
+      vb.nested = true          # Enable nested virtualization
+      vb.disk_bus = "virtio"    # Better disk I/O performance
     end
-    
-    # Ansible provisioning
+
+    # Ansible provisioning with verbose output
     jenkins.vm.provision "ansible" do |ansible|
-      ansible.playbook = "playbook.yml"
-      ansible.verbose = ""
+      ansible.playbook = "setup.yml"
+      ansible.verbose = "-vv"
       ansible.host_key_checking = false
-      ansible.galaxy_role_file = nil
       ansible.become = true
       ansible.extra_vars = {
         target_hosts: "all"
@@ -44,7 +43,4 @@ Vagrant.configure("2") do |config|
   config.vm.boot_timeout = 600
   config.ssh.insert_key = false
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
-  
-  # Disable default shared folder if not needed
-  # config.vm.synced_folder ".", "/vagrant", disabled: true
 end

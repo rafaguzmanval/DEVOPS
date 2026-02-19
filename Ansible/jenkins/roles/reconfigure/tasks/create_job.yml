@@ -14,22 +14,21 @@
     current_job_branch: "{{ branch }}"
     current_job_path: "{{ path }}"
 
-- name: Create job directory on host
+- name: Create job directory
   file:
-    path: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}"
+    path: "{{ playbook_dir }}/files/jenkins_init/jobs/{{ name }}"
     state: directory
 
 - name: Generate job config.xml
   template:
     src: job_config.xml.j2
-    dest: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}/config.xml"
+    dest: "{{ playbook_dir }}/files/jenkins_init/jobs/{{ name }}/config.xml"
     mode: '0644'
 
 - name: Copy job config to Jenkins container
-  docker_container_copy:
-    container: "{{ jenkins_container_name }}"
-    src: "{{ role_path }}/files/jenkins_init/jobs/{{ name }}/config.xml"
-    dest: "/var/jenkins_home/jobs/{{ name }}/config.xml"
+  command: docker cp {{ playbook_dir }}/files/jenkins_init/jobs/{{ name }}/config.xml {{ jenkins_container_name }}:/var/jenkins_home/jobs/{{ name }}/config.xml
+  ignore_errors: true
+  changed_when: false
 
 - name: Reload Jenkins configuration
   uri:

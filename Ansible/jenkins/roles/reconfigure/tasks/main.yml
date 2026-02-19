@@ -1,0 +1,13 @@
+---
+# Main tasks for Jenkins Reconfigure role
+# Performs configuration changes without reinstallation
+
+- name: Configure Jenkins
+  include_tasks: tasks/configure_jenkins.yml
+  tags:
+    - configure
+
+- name: Create/Update Jenkins Jobs
+  include_tasks: tasks/create_job.yml
+  tags:
+    - jobs

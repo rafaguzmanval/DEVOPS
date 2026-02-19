@@ -1,0 +1,15 @@
+// Jenkins Initialization Script
+// Note: Main configuration is handled by JCasC (jcasc.yaml)
+// This script is kept for backward compatibility
+
+import jenkins.model.*
+
+def instance = Jenkins.getInstance()
+
+// Disable setup wizard
+def setupWizard = Jenkins.getInstance().getSetupWizard()
+if (setupWizard != null) {
+    setupWizard.completeSetup()
+}
+
+println "Jenkins initialization complete. Configuration managed by JCasC."

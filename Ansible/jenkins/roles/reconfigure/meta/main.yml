@@ -1,0 +1,25 @@
+---
+# Role metadata
+
+galaxy_info:
+  author: Rafael Guzman
+  description: Jenkins reconfiguration and job management
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+  galaxy_tags:
+    - jenkins
+    - docker
+    - ci
+    - cd
+    - reconfigure
+
+dependencies: []

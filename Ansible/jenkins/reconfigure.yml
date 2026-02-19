@@ -26,4 +26,4 @@
     jenkins_host_port: 8080
 
   roles:
-    - jenkins
+    - reconfigure

@@ -21,14 +21,31 @@ Ansible role to deploy Jenkins as a Docker container with automatic admin user s
 - Ansible 2.9 or higher
 - Target system: Ubuntu 20.04/22.04 or Debian 11/12
 - Docker must be installable on the target system
+- Required Ansible collections (install on your control host):
+  ```bash
+  ansible-galaxy collection install community.docker community.general
+  ```
+
+## Installation
+
+Install required collections before running the playbook:
+
+```bash
+cd /home/rafaelg/Projects/DEVOPS/Ansible/jenkins
+ansible-galaxy collection install -r requirements.yml
+```
+
+Or install manually:
+
+```bash
+ansible-galaxy collection install community.docker community.general
+```
 
 ## Directory Structure
 
 ```
 jenkins/
-├── defaults/
-│   └── main.yml              # Default variables
-├── files/
+├── files/                    # Jenkins state (single source of truth)
 │   ├── plugins.yml           # List of plugins to install
 │   ├── users.yml             # Additional users configuration
 │   ├── credentials.yml       # Additional credentials configuration
@@ -37,28 +54,25 @@ jenkins/
 │   │   ├── jcasc-users.yaml
 │   │   ├── jcasc-credentials.yaml
 │   │   └── jcasc-cloud.yaml
-│   └── jobs/                 # Job configuration files
+│   ├── jenkins_init/         # Initialization scripts (generated)
+│   │   └── jobs/             # Job configurations (generated)
+│   └── jobs/                 # Job definition files
 │       ├── sample-project.yml
 │       └── backend-service.yml
-├── handlers/
-│   └── main.yml              # Service handlers
-├── meta/
-│   └── main.yml              # Role metadata
-├── tasks/
-│   ├── main.yml              # Main tasks (includes sub-tasks)
-│   ├── install_docker.yml    # Docker installation tasks
-│   ├── deploy_compose.yml    # Docker Compose deployment
-│   ├── configure_jenkins.yml # Jenkins configuration
-│   └── create_job.yml        # Job creation tasks
-├── templates/
-│   ├── init.groovy.j2        # Jenkins initialization script
-│   ├── jcasc.yaml.j2         # Main JCasC configuration
-│   ├── jcasc-users.yaml.j2   # Users configuration template
-│   ├── jcasc-credentials.yaml.j2  # Credentials template
-│   ├── jcasc-cloud.yaml.j2   # Docker Cloud template
-│   ├── job_config.xml.j2     # Job configuration template
-│   └── docker-compose.yml.j2 # Docker Compose template
-├── playbook.yml              # Full deployment playbook
+├── roles/
+│   ├── setup/                # Initial setup role
+│   │   ├── tasks/
+│   │   ├── templates/
+│   │   ├── handlers/
+│   │   ├── defaults/
+│   │   └── meta/
+│   └── reconfigure/          # Reconfiguration role
+│       ├── tasks/
+│       ├── templates/
+│       ├── handlers/
+│       ├── defaults/
+│       └── meta/
+├── setup.yml                 # Full deployment playbook
 ├── reconfigure.yml           # Reconfiguration playbook
 ├── update_jobs.yml           # Jobs-only update playbook
 ├── update_users.yml          # Users-only update playbook

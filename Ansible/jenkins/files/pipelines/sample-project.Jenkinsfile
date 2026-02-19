@@ -2,10 +2,10 @@
 // Uses docker.image().inside() syntax
 
 pipeline {
-    agent any
-    
+    agent {
+            label 'dind-agent'
+        }
     options {
-        timestamps()
         timeout(time: 1, unit: 'HOURS')
     }
     

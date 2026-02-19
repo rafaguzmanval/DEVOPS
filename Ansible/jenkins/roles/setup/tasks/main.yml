@@ -1,0 +1,20 @@
+---
+# Main tasks for Jenkins Setup role
+# Performs initial installation and deployment
+
+- name: Install Docker
+  include_tasks: tasks/install_docker.yml
+  tags:
+    - docker
+
+- name: Prepare jcasc and Docker Compose files
+  include_tasks: tasks/prepare_jcasc.yml
+  tags:
+    - prepare
+    - jcasc
+    - compose
+
+- name: Deploy Jenkins with Docker Compose
+  include_tasks: tasks/deploy_compose.yml
+  tags:
+    - deploy

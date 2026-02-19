@@ -1,0 +1,81 @@
+---
+# Tasks to deploy Jenkins and Docker Cloud using Docker Compose
+# Tags: setup, deploy, always
+
+
+- name: Build and deploy Jenkins stack
+  block:
+    - name: Build Jenkins Docker image
+      command: docker-compose build --pull
+      args:
+        chdir: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+      register: build_result
+      changed_when: "'Successfully built' in build_result.stdout or 'Building' in build_result.stdout"
+
+    - name: Show Docker build logs on failure
+      command: docker-compose logs --no-color
+      args:
+        chdir: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+      register: docker_logs
+      failed_when: false
+      changed_when: false
+      when: build_result.failed | default(false)
+
+    - name: Display Docker logs for debugging
+      debug:
+        msg: "{{ docker_logs.stdout_lines }}"
+      when: build_result.failed | default(false) and docker_logs.stdout_lines is defined
+  tags:
+    - setup
+    - deploy
+    - compose
+    - build
+    - always
+
+- name: Deploy Jenkins stack with Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+  register: compose_result
+  changed_when: "'Recreating' in compose_result.stdout or 'Creating' in compose_result.stdout or 'Starting' in compose_result.stdout"
+  tags:
+    - setup
+    - deploy
+    - compose
+    - always
+
+- name: Healthcheck and Log Capture
+  block:
+    - name: Ensure Jenkins is stable and responding
+      shell: "curl -sf http://localhost:{{ jenkins_host_port }}/login"
+      register: jenkins_stable
+      retries: 3
+      delay: 5
+      until: jenkins_stable.rc == 0
+      changed_when: false
+
+  rescue:
+    - name: Get Jenkins container logs on failure
+      command: "docker logs {{ jenkins_container_name | default('jenkins') }}"
+      register: container_logs
+      changed_when: false
+
+    - name: Display Jenkins logs
+      debug:
+        var: container_logs.stderr_lines
+      failed_when: true
+
+- name: Build custom image inside the docker-cloud container
+  community.docker.docker_image:
+    name: "dind:latest"
+    docker_host: "tcp://localhost:2375"
+    build:
+      path: "{{ jenkins_compose_dir }}/custom_images/dind"
+      dockerfile: dind.Dockerfile
+      pull: yes
+    source: build
+  register: build_result
+  tags:
+    - build-inner-image
+
+

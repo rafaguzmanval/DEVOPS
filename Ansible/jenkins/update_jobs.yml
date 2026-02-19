@@ -33,7 +33,7 @@
   tasks:
     - name: Load jobs configuration
       find:
-        paths: "{{ role_path | default('.') }}/files/jobs"
+        paths: "{{ playbook_dir }}/files/jobs"
         patterns: "*.yml"
       register: jobs_files
       tags:
@@ -41,7 +41,7 @@
         - always
 
     - name: Process each job file
-      include_tasks: tasks/create_job.yml
+      include_tasks: roles/reconfigure/tasks/create_job.yml
       loop: "{{ jobs_files.files }}"
       loop_control:
         loop_var: job_file

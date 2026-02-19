@@ -31,7 +31,7 @@
 
     - name: Create JCasC configuration directory
       file:
-        path: "{{ role_path | default('.') }}/files/jcasc"
+        path: "{{ playbook_dir }}/files/jcasc"
         state: directory
       tags:
         - docker-cloud
@@ -40,8 +40,8 @@
 
     - name: Generate updated JCasC configuration
       template:
-        src: templates/jcasc.yaml.j2
-        dest: "{{ role_path | default('.') }}/files/jcasc/jcasc.yaml"
+        src: roles/reconfigure/templates/jcasc.yaml.j2
+        dest: "{{ playbook_dir }}/files/jcasc/jcasc.yaml"
         mode: '0644'
       tags:
         - docker-cloud

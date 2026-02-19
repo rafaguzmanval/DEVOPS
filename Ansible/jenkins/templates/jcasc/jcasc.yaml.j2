@@ -1,0 +1,44 @@
+# Jenkins Configuration as Code - Main Configuration
+# Managed by Ansible - Do not edit manually
+# This file includes all modular JCasC configurations
+
+jenkins:
+  # System message
+  systemMessage: "Jenkins configured automatically by Ansible | Docker Cloud enabled"
+
+  # Global properties
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: "DOCKER_HOST"
+            value: "{{ jenkins_docker_cloud_docker_host }}"
+          - key: "DOCKER_TLS_VERIFY"
+            value: ""
+          - key: "DOCKER_CERT_PATH"
+            value: ""
+  
+  clouds:
+      - docker:
+          name: "docker-cloud"
+          dockerApi:
+            dockerHost:
+              uri: "{{ jenkins_docker_cloud_docker_host }}"
+            connectTimeout: 5
+            readTimeout: 60
+          containerCap: 10
+          templates:
+            - name: "dind-agent"
+              labelString: "dind-agent"
+              mode: EXCLUSIVE
+              remoteFs: "/home/jenkins"
+              instanceCapStr: "5" 
+              dockerTemplateBase:
+                image: "dind:latest"
+              pullStrategy: PULL_NEVER 
+              connector: "attach"
+# Tool configuration
+tool:
+  git:
+    installations:
+      - name: "Default Git"
+        home: "/usr/bin/git"

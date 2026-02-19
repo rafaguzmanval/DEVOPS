@@ -1,0 +1,20 @@
+---
+# Playbook for Jenkins Deployment
+# This playbook deploys Jenkins as a Docker container with admin user and jobs
+#
+# Usage:
+#   ansible-playbook setup.yml -e "target_hosts=jenkins_servers"
+#   ansible-playbook setup.yml -e "target_hosts=all"
+#   ansible-playbook setup.yml -i inventory.yml
+
+- name: Deploy Jenkins with Docker
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  vars:
+
+    # Custom port if needed
+    jenkins_host_port: 8080
+
+  roles:
+    - setup
