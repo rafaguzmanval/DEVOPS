@@ -15,7 +15,7 @@ jenkins_docker_cloud_enabled: true
 jenkins_docker_cloud_image: "docker:dind"
 jenkins_docker_cloud_container_name: "docker-cloud"
 jenkins_docker_cloud_network_name: "jenkins-network"
-jenkins_docker_cloud_docker_host: "tcp://docker-cloud:2375"
+jenkins_docker_cloud_docker_host: "tcp://127.0.0.1:2375"
 jenkins_docker_cloud_container_template:
   image: "docker:dind"
   privileged: true
@@ -25,7 +25,7 @@ jenkins_docker_cloud_container_template:
     - "/var/run/docker.sock:/var/run/docker.sock"
     - "/home/jenkins:/home/jenkins"
   environment:
-    DOCKER_HOST: "tcp://docker-cloud:2375"
+    DOCKER_HOST: "tcp://127.0.0.1:2375"
     DOCKER_TLS_VERIFY: ""
     DOCKER_CERT_PATH: ""
 
