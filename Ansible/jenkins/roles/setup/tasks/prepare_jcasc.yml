@@ -38,6 +38,7 @@
     - jcasc.yaml
     - jcasc-users.yaml
     - jcasc-credentials.yaml
+    - jcasc-jobs.yaml
   tags:
     - setup
     - deploy

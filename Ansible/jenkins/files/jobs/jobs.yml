@@ -1,0 +1,15 @@
+---
+# Job: sample-project
+# Git repository: https://github.com/rafaguzmanval/DEVOPS
+
+config:
+  - name: "sample1"
+    repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+    branch: "main"
+    path: "Ansible/jenkins/files/pipelines/sample-project.jenkinsfile"
+    cron: ""
+  - name: "sample2"
+    repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+    branch: "develop"
+    path: "Ansible/jenkins/files/pipelines/sample-project.jenkinsfile"
+    cron: "" # Sin ejecución programada

@@ -5,3 +5,5 @@ blueocean
 configuration-as-code
 docker-workflow
 dark-theme
+ws-cleanup
+job-dsl
