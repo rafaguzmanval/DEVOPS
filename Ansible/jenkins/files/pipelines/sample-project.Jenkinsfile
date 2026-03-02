@@ -1,39 +1,53 @@
-// Jenkins Declarative Pipeline for sample-project
-// Uses docker.image().inside() syntax
-
 pipeline {
     agent {
-            label 'dind-agent'
-        }
-    options {
-        timeout(time: 1, unit: 'HOURS')
+        label 'dind-agent'
     }
-    
+
+    environment {
+        REPO_URL = 'https://github.com/rafaguzmanval/DEVOPS.git'
+    }
+
     stages {
-        stage('Hello World') {
+        stage('1. Git Clone (desde Imagen)') {
             steps {
+                deleteDir()
                 script {
-                    echo '👋 Hello World from Docker container!'
-                    
-                    docker.image('alpine:latest').inside() {
-                        sh 'echo "Running inside Alpine container"'
-                        sh 'ls -la'
+                    // Usamos la imagen específica de git
+                    // '-u 0:0' asegura que tengamos permisos para escribir en el workspace del agente
+                    docker.image('alpine/git:v2.49.1').inside('-u 0:0') {
+                        echo "🚀 Clonando repositorio con imagen alpine/git..."
+                        sh "git clone ${REPO_URL} ."
                     }
                 }
             }
         }
-    
+
+        stage('2. Alpine: Modificar') {
+            steps {
+                script {
+                    docker.image('alpine:latest').inside('-u 0:0') {
+                        echo "🔧 Alpine editando el archivo..."
+                        sh 'echo "\n-- Modificado por Alpine --" >> README.md'
+                    }
+                }
+            }
+        }
+
+        stage('3. Ubuntu: Leer') {
+            steps {
+                script {
+                    docker.image('ubuntu:latest').inside('-u 0:0') {
+                        echo "📖 Ubuntu leyendo el resultado final..."
+                        sh 'cat README.md'
+                    }
+                }
+            }
+        }
     }
-    
+
     post {
         always {
-            echo 'Pipeline finished!'
-        }
-        success {
-            echo '✅ Pipeline succeeded!'
-        }
-        failure {
-            echo '❌ Pipeline failed!'
+            echo "🏁 Proceso multi-imagen terminado."
         }
     }
 }
