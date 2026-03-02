@@ -6,10 +6,10 @@ config:
   - name: "sample1"
     repo: "https://github.com/rafaguzmanval/DEVOPS.git"
     branch: "main"
-    path: "Ansible/jenkins/files/pipelines/sample-project.jenkinsfile"
+    path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
     cron: ""
   - name: "sample2"
     repo: "https://github.com/rafaguzmanval/DEVOPS.git"
     branch: "develop"
-    path: "Ansible/jenkins/files/pipelines/sample-project.jenkinsfile"
+    path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
     cron: "" # Sin ejecución programada
