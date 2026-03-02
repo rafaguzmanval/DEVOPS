@@ -15,7 +15,7 @@ pipeline {
                     // EL TRUCO: Añadimos --entrypoint='' para que no se cierre
                     docker.image('alpine/git:v2.49.1').inside("--entrypoint=''") {
                         echo "🚀 Clonando repositorio..."
-                        sh "git clone ${REPO_URL} ."
+                        git branch: "main", url: "${REPO_URL}"
                     }
                 }
             }
