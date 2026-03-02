@@ -12,10 +12,9 @@ pipeline {
             steps {
                 deleteDir()
                 script {
-                    // Usamos la imagen específica de git
-                    // '-u 0:0' asegura que tengamos permisos para escribir en el workspace del agente
-                    docker.image('alpine/git:v2.49.1').inside('-u 0:0') {
-                        echo "🚀 Clonando repositorio con imagen alpine/git..."
+                    // EL TRUCO: Añadimos --entrypoint='' para que no se cierre
+                    docker.image('alpine/git:v2.49.1').inside("--entrypoint=''") {
+                        echo "🚀 Clonando repositorio..."
                         sh "git clone ${REPO_URL} ."
                     }
                 }
@@ -25,8 +24,9 @@ pipeline {
         stage('2. Alpine: Modificar') {
             steps {
                 script {
-                    docker.image('alpine:latest').inside('-u 0:0') {
-                        echo "🔧 Alpine editando el archivo..."
+                    // En Alpine estándar no suele hacer falta, pero por consistencia:
+                    docker.image('alpine:latest').inside("--entrypoint=''") {
+                        echo "🔧 Alpine editando..."
                         sh 'echo "\n-- Modificado por Alpine --" >> README.md'
                     }
                 }
@@ -36,18 +36,13 @@ pipeline {
         stage('3. Ubuntu: Leer') {
             steps {
                 script {
-                    docker.image('ubuntu:latest').inside('-u 0:0') {
-                        echo "📖 Ubuntu leyendo el resultado final..."
+                    // Ubuntu no tiene git, pero aquí solo leemos
+                    docker.image('ubuntu:latest').inside("--entrypoint=''") {
+                        echo "📖 Ubuntu leyendo..."
                         sh 'cat README.md'
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            echo "🏁 Proceso multi-imagen terminado."
         }
     }
 }
