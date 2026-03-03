@@ -2,58 +2,107 @@
 # Tasks to install and configure Docker
 # Tags: setup, docker, always
 
-- name: Install Docker dependencies
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-      - lsb-release
-    state: present
-    update_cache: true
-  become: true
-  tags:
-    - setup
-    - docker
-    - packages
-    - always
+- name: Install Docker (Debian/Ubuntu)
+  block:
+    - name: Install Docker dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+      become: true
+      tags:
+        - setup
+        - docker
+        - packages
+        - always
 
-- name: Add Docker GPG key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-  become: true
-  tags:
-    - setup
-    - docker
-    - always
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      become: true
+      tags:
+        - setup
+        - docker
+        - always
 
-- name: Add Docker repository
-  apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-    state: present
-  become: true
-  tags:
-    - setup
-    - docker
-    - always
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+      become: true
+      tags:
+        - setup
+        - docker
+        - always
 
-- name: Install Docker
-  apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-compose
-    state: present
-    update_cache: true
-  become: true
-  tags:
-    - setup
-    - docker
-    - packages
-    - always
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose
+        state: present
+        update_cache: true
+      become: true
+      tags:
+        - setup
+        - docker
+        - packages
+        - always
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker (RHEL/CentOS/Rocky/Alma)
+  block:
+    - name: Install Docker dependencies
+      yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+      become: true
+      tags:
+        - setup
+        - docker
+        - packages
+        - always
+
+    - name: Add Docker repository
+      yum_repository:
+        name: docker-ce
+        description: Docker CE Repository
+        baseurl: https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/stable
+        gpgcheck: true
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        enabled: true
+      become: true
+      tags:
+        - setup
+        - docker
+        - always
+
+    - name: Install Docker
+      yum:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose
+        state: present
+      become: true
+      tags:
+        - setup
+        - docker
+        - packages
+        - always
+  when: ansible_os_family == "RedHat"
 
 - name: Add user to docker group
   user:
