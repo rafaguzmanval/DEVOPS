@@ -1,0 +1,23 @@
+- name: Build dind image inside remote docker
+  community.docker.docker_image:
+    name: "dind:latest"
+    build:
+      path: "{{ jenkins_compose_dir }}/custom_images/dind"
+      dockerfile: dind.Dockerfile
+      pull: yes
+    source: build
+  register: build_result
+  tags:
+    - build-inner-image
+
+- name: Build git image inside remote docker
+  community.docker.docker_image:
+    name: "custom-git:latest"
+    build:
+      path: "{{ jenkins_compose_dir }}/custom_images/git"
+      dockerfile: git.Dockerfile
+      pull: yes
+    source: build
+  register: build_result
+  tags:
+    - build-inner-image

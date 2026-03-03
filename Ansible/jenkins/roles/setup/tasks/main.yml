@@ -18,3 +18,6 @@
   include_tasks: tasks/deploy_compose.yml
   tags:
     - deploy
+
+- name: Build custom images
+  include_tasks: tasks/build_custom_images.yml

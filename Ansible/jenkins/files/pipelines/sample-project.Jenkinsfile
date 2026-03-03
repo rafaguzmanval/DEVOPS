@@ -12,8 +12,7 @@ pipeline {
             steps {
                 deleteDir()
                 script {
-                    // EL TRUCO: Añadimos --entrypoint='' para que no se cierre
-                    docker.image('alpine/git:v2.49.1').inside("--entrypoint=''") {
+                    docker.image('custom-git:latest').inside("") {
                         echo "🚀 Clonando repositorio..."
                         git branch: "main", url: "${REPO_URL}"
                     }

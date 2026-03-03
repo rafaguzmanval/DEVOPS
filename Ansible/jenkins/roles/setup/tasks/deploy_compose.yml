@@ -65,16 +65,5 @@
         var: container_logs.stderr_lines
       failed_when: true
 
-- name: Build custom image inside the docker-cloud container
-  community.docker.docker_image:
-    name: "dind:latest"
-    build:
-      path: "{{ jenkins_compose_dir }}/custom_images/dind"
-      dockerfile: dind.Dockerfile
-      pull: yes
-    source: build
-  register: build_result
-  tags:
-    - build-inner-image
 
 
