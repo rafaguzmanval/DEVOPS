@@ -3,10 +3,6 @@
 # Managed by Ansible - Do not edit manually
 
 services:
-  # Docker Cloud service for running Docker daemons
-
-
-
   # Jenkins CI/CD service (custom image with pre-installed plugins and config)
   jenkins:
     build:
@@ -18,7 +14,7 @@ services:
     network_mode: host
     privileged: true
     volumes:
-      - jenkins_data:/var/jenkins_home
+      - /var/jenkins_home:/var/jenkins_home
       - /home/jenkins:/home/jenkins
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -32,7 +28,5 @@ services:
       app: jenkins
 
 volumes:
-  jenkins_data:
-    driver: local
   docker_cloud_data:
     driver: local

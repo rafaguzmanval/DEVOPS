@@ -3,13 +3,22 @@
 # Git repository: https://github.com/rafaguzmanval/DEVOPS
 
 config:
-  - name: "sample1"
-    repo: "https://github.com/rafaguzmanval/DEVOPS.git"
-    branch: "main"
-    path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
-    cron: ""
-  - name: "sample2"
-    repo: "https://github.com/rafaguzmanval/DEVOPS.git"
-    branch: "develop"
-    path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
-    cron: "" # Sin ejecución programada
+  - folder: "sample-folder"
+    children:
+      - pipeline: "sample1"
+        repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+        branch: "main"
+        path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
+        cron: ""
+      - pipeline: "sample2"
+        repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+        branch: "develop"
+        path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
+        cron: "" # Sin ejecución programada
+      - folder: "nested-folder"
+        children:
+          - pipeline: "nested-sample"
+            repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+            branch: "main"
+            path: "Ansible/jenkins/files/pipelines/nested-sample.Jenkinsfile"
+            cron: ""

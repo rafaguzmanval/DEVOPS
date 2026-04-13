@@ -1,28 +1,3 @@
 jobs:
-  - script: |
-      import org.yaml.snakeyaml.Yaml
-      
-      def yaml = new Yaml()
-      def configFile = new File("/var/jenkins_home/jobs-config/jobs.yml")
-      
-      if (configFile.exists()) {
-          def data = yaml.load(configFile.text)
-          
-          data.config.each { app ->
-              pipelineJob(app.name) {
-                  definition {
-                      cpsScm {
-                          scm {
-                              git {
-                                  remote { url(app.repo) }
-                                  branch(app.branch ?: 'main')
-                              }
-                          }
-                          scriptPath(app.path ?: 'Jenkinsfile')
-                      }
-                  }
-              }
-          }
-      } else {
-          println "⚠️ Archivo de configuración no encontrado en ${configFile.path}"
-      }
+  - file: "/var/jenkins_home/casc_configs/process_jobs.groovy"
+

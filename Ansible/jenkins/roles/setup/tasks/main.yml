@@ -7,6 +7,9 @@
   tags:
     - docker
 
+- name: Install python
+  include_tasks: tasks/install_python.yml
+
 - name: Prepare jcasc and Docker Compose files
   include_tasks: tasks/prepare_jcasc.yml
   tags:

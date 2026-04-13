@@ -7,12 +7,11 @@ USER root
 
 # Copiamos a la carpeta de REFERENCIA, no directamente al home
 COPY jcasc/ /usr/share/jenkins/ref/casc_configs/
-COPY jobs/ /var/jenkins_home/jobs-config/
+COPY scripts/ /usr/share/jenkins/ref/casc_configs/
+COPY jobs/ /usr/share/jenkins/ref/jobs-config/
 COPY pipelines/ /usr/share/jenkins/ref/pipelines/
 # Esta es la ruta clave para el init.groovy
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-
-RUN chown -R jenkins:jenkins /var/jenkins_home/jobs-config
 
 # Instalar plugins
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt

@@ -60,48 +60,33 @@
 
 - name: Install Docker (RHEL/CentOS/Rocky/Alma)
   block:
-    - name: Install Docker dependencies
-      yum:
-        name:
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
-        state: present
-      become: true
-      tags:
-        - setup
-        - docker
-        - packages
-        - always
-
     - name: Add Docker repository
-      yum_repository:
-        name: docker-ce
-        description: Docker CE Repository
-        baseurl: https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/stable
-        gpgcheck: true
-        gpgkey: https://download.docker.com/linux/centos/gpg
-        enabled: true
+      # En RHEL 9 no usamos yum_repository manual con variables de arquitectura si podemos evitarlo.
+      # Es más seguro usar el comando oficial para que autodetecte todo.
+      command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
       become: true
-      tags:
-        - setup
-        - docker
-        - always
+      changed_when: false
 
     - name: Install Docker
-      yum:
+      dnf:
         name:
           - docker-ce
           - docker-ce-cli
           - containerd.io
-          - docker-compose
+          - docker-compose-plugin
         state: present
+        # Esto soluciona conflictos con paquetes de Podman que vienen en RHEL 9
+        nobest: true
       become: true
-      tags:
-        - setup
-        - docker
-        - packages
-        - always
+
+    - name: Ensure Docker service is started and enabled
+      # ESTE ES EL PASO QUE TE FALTABA
+      # En RHEL, dnf instala el paquete pero NO arranca el servicio ni el socket.
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+      become: true
   when: ansible_os_family == "RedHat"
 
 - name: Add user to docker group
@@ -110,7 +95,8 @@
     groups: docker
     append: true
   become: true
-  tags:
-    - setup
-    - docker
-    - always
+
+- name: Force a restart of the SSH session to apply group changes
+  # Si Ansible intenta usar Docker justo después de añadir el grupo, fallará
+  # porque la sesión actual no sabe que ya eres del grupo 'docker'.
+  meta: reset_connection

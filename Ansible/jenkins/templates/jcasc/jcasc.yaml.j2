@@ -5,13 +5,12 @@
 jenkins:
   # System message
   systemMessage: "Jenkins configured automatically by Ansible | Docker Cloud enabled"
-
+  numExecutors: 0
+  mode: EXCLUSIVE
   # Global properties
   globalNodeProperties:
     - envVars:
         env:
-          - key: "DOCKER_HOST"
-            value: "{{ jenkins_docker_cloud_docker_host }}"
           - key: "DOCKER_TLS_VERIFY"
             value: ""
           - key: "DOCKER_CERT_PATH"
@@ -35,8 +34,9 @@ jenkins:
             dockerTemplateBase:
               image: "dind:latest"
               network: "host"
-              mountsString: |
-                type=bind,source=/home/jenkins,target=/home/jenkins
+              mounts:
+                - "type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock"
+                - "type=bind,source=/home/jenkins,target=/home/jenkins"
               privileged: true
             pullStrategy: PULL_NEVER
             connector:
