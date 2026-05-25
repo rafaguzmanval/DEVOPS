@@ -1,0 +1,55 @@
+---
+- name: Gestionar registros DNS en Route53 (Localhost / Floci)
+  hosts: localhost
+  vars:
+    dns_method: "dns"
+    dns_type: "CNAME"
+    aws_hosted_zone_id: "ZZDEKM31DZXZDS6"
+    dns_record: "tu-dominio.local."
+    dns_target: "tu-target.cloudfront.net."
+    
+    # URL del servicio de AWS simulado en tu localhost (ej. LocalStack o mock server en el puerto de floci)
+    # Cambia el puerto (ej. 4566, 8080) según dónde esté escuchando tu entorno
+    aws_local_endpoint: "http://172.17.0.1:4566" 
+
+  tasks:
+    # --- VALIDACIONES ---
+    - name: Validar método de DNS
+      ansible.builtin.fail:
+        msg: "Método de validación no soportado: {{ dns_method }}"
+      when: dns_method != 'dns'
+
+    - name: Validar tipo de DNS
+      ansible.builtin.fail:
+        msg: "Tipo DNS no soportado: {{ dns_type }}"
+      when: dns_type != 'CNAME'
+
+    # --- EJECUCIÓN LOCAL ---
+    - name: "Actualizando Route53 Local... (UPSERT {{ dns_record }})"
+      amazon.aws.route53:
+        hosted_zone_id: "{{ aws_hosted_zone_id }}"
+        record: "{{ dns_record }}"
+        type: CNAME
+        ttl: 300
+        value: "{{ dns_target }}"
+        state: present
+        overwrite: yes
+        
+        # --- ATRIBUTOS PARA APUNTAR AL LOCALHOST ---
+        endpoint_url: "{{ aws_local_endpoint }}"
+        validate_certs: false
+        
+      # Forzamos las variables de entorno para que el cliente de Python (botocore) las lea correctamente
+      environment:
+        AWS_DEFAULT_REGION: "{{ AWS_DEFAULT_REGION | default('us-east-1') }}"
+        AWS_REGION: "{{ AWS_DEFAULT_REGION | default('us-east-1') }}"
+        AWS_ACCESS_KEY_ID: "{{ AWS_ACCESS_KEY_ID | default('mock') }}"
+        AWS_SECRET_ACCESS_KEY: "{{ AWS_SECRET_ACCESS_KEY | default('mock') }}"
+        
+      register: resultado_route53
+
+    # --- LOG DE ÉXITO ---
+    - name: Mostrar mensaje de éxito
+      ansible.builtin.debug:
+        msg: "Route53 local actualizado correctamente"
+      when: resultado_route53.changed or not resultado_route53.failed
