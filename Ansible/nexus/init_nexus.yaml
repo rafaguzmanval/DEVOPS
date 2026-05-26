@@ -1,0 +1,5 @@
+- name: Setup Nexus
+  hosts: "{{ host }}"
+  become: true
+  roles:
+    - "{{ role_to_execute }}"

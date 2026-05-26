@@ -1,0 +1,17 @@
+- name: Ensure Python dependencies are installed on remote host
+  become: true
+  ansible.builtin.package:
+    name: 
+      - python3-requests
+      - python3-docker
+    state: present
+
+- name: Create Semaphore UI docker network
+  community.docker.docker_network:
+    name: "{{ semaphore_network_name }}"
+    driver: bridge
+    enable_ipv6: false
+    ipam_config:
+      - subnet: 172.28.0.0/16
+        gateway: 172.28.0.1
+

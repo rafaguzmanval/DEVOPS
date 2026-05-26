@@ -1,0 +1,7 @@
+- name: Setup Semaphore UI
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - create_semaphore_network.yaml
+    - install_bbdd.yaml
+    - install_semaphoreui.yaml
+    - check_semaphore_status.yaml

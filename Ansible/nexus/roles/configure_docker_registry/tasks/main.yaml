@@ -1,0 +1,28 @@
+- name: Activate Docker Token Realm
+  include_role:
+    name: activate_realm
+  vars:
+    realm_id: "DockerToken"
+
+- name: Create Docker Blob Store
+  include_role:
+    name: create_blobstore
+
+- name: Create Docker Hosted Repository
+  include_role:
+    name: create_repository
+  vars:
+    repo_format: "docker"
+    repo_type: "hosted"
+    repository_config:
+      name: "docker-hosted"
+      online: true
+      storage:
+        blobStoreName: "{{ blobstore_name }}"
+        strictContentTypeValidation: true
+        writePolicy: "ALLOW"
+      docker:
+        v1Enabled: false
+        forceBasicAuth: true
+        httpPort: "{{ nexus_docker_http_port }}"
+        requireAuthentication: false

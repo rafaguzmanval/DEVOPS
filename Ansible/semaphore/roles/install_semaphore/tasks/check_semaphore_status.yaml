@@ -1,0 +1,20 @@
+---
+- name: Wait until Semaphore is ready
+  community.docker.docker_container_info:
+    name: "{{ semaphore_hostname }}"
+  register: health_status
+  until: health_status.container.State.Health.Status == "healthy"
+  retries: 10
+  delay: 5
+
+- name: Wait for Semaphore UI to be ready on external port
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/info"
+    method: GET
+    status_code: 200
+  register: semaphore_status
+  until: semaphore_status.status == 200
+  retries: 30
+  delay: 10
+  delegate_to: localhost
+  run_once: true   

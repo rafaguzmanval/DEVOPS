@@ -1,0 +1,30 @@
+- name: Setup Project in Semaphore
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/projects"
+    method: POST
+    body: 
+      name: "{{ project_name }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201, 400]
+    return_content: yes
+  register: project_response
+  delegate_to: localhost
+  run_once: true
+  failed_when:
+    - project_response.status == 400
+    - "'project with name' not in project_response.content"
+    - "'already exists' not in project_response.content"
+  changed_when: project_response.status in [200, 201]
+  no_log: true
+
+- name: Register project ID as a fact
+  set_fact:
+    project_id: "{{ project_response.json.id }}"
+  delegate_to: localhost
+  run_once: true
+  when: 
+    - project_response.json is defined
+    - project_response.json.id is defined

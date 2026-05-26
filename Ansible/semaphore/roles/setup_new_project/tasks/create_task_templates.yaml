@@ -1,0 +1,35 @@
+- name: Create project task templates
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/project/{{ project_id }}/templates"
+    method: POST
+    body:
+      project_id: "{{ project_id | int }}"
+      name: "{{ item.name }}"
+      playbook: "{{ item.playbook }}"
+      app: "{{ item.app | default('ansible') }}"
+      inventory_id: "{{ (inventories_map | default({}))[item.inventory_id | default('none')] | default(0) | int }}"
+      repository_id: "{{ (repositories_map | default({}))[item.repository_id | default('none')] | default(0) | int }}"
+      environment_id: "{{ (environments_map | default({}))[item.environment_id | default('none')] | default(0) | int }}"
+      git_branch: "{{ item.git_branch }}"
+      vaults: |-
+        {%- set v_list = [] -%}
+        {%- for v in item.vaults | default([]) -%}
+        {%-   set v_key_id = (keys_map | default({}))[v.vault_key_id] | default(none) -%}
+        {%-   if v_key_id -%}
+        {%-     set _ = v_list.append({'name': v.name, 'type': v.type, 'vault_key_id': v_key_id | int}) -%}
+        {%-   else -%}
+        {%-     set _ = v_list.append({'name': v.name, 'type': v.type}) -%}
+        {%-   endif -%}
+        {%- endfor -%}
+        {{ v_list }}
+      survey_vars: "{{ item.survey_vars | default([]) }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201]
+  register: task_templates_responses
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ task_templates_list }}"
+  changed_when: task_templates_responses.status in [200, 201]

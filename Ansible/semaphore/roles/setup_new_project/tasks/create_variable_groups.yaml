@@ -1,0 +1,24 @@
+- name: Create project variable groups
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/project/{{ project_id }}/environment"
+    method: POST
+    body:
+      project_id: "{{ project_id | int }}"
+      name: "{{ item.name }}"
+      json: "{{ item.json }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201]
+  register: environment_responses
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ variable_group_list }}"
+  changed_when: environment_responses.status in [200, 201]
+
+- name: Map Names to IDs
+  set_fact:
+    environments_map: "{{ environments_map | default({}) | combine({ item.json.name: item.json.id }) }}"
+  loop: "{{ environment_responses.results }}"
+  run_once: true

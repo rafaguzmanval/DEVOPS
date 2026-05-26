@@ -1,0 +1,17 @@
+- name: Create File Blob Store {{ blobstore_name }}
+  uri:
+    url: "{{ nexus_api_url }}/blobstores/file"
+    method: POST
+    user: "{{ nexus_admin_user }}"
+    password: "{{ nexus_admin_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      name: "{{ blobstore_name }}"
+      path: "{{ blobstore_path | default(blobstore_name) }}"
+    status_code: 201, 204, 400 # 400 si ya existe
+  register: create_blobstore_result
+  changed_when: create_blobstore_result.status == 201 or create_blobstore_result.status == 204
+  failed_when: create_blobstore_result.status != 201 and create_blobstore_result.status != 204 and create_blobstore_result.status != 400

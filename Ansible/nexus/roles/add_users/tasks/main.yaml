@@ -1,0 +1,48 @@
+- name: Create developer rol in Nexus
+  uri:
+    url: "http://localhost:8081/service/rest/v1/security/roles"
+    method: POST
+    user: "{{ nexus_admin_user | default('admin') }}"
+    password: "{{ nexus_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200,201
+    body_format: json
+    body:
+      id: "nx-developer"
+      name: "nx-developer"
+      description: "Rol con privilegios para subir y descargar artefactos"
+      privileges:
+        - "nx-component-upload"
+        - "nx-healthcheck-read"
+        - "nx-healthcheck-summary-read"
+        - "nx-repository-view-*-*-add"
+        - "nx-repository-view-*-*-browse"
+        - "nx-repository-view-*-*-edit"
+        - "nx-repository-view-*-*-read"
+        - "nx-repository-view-docker-*-*"
+        - "nx-userschangepw"  
+      roles: []
+
+
+- name: Load users list from JSON file
+  set_fact:
+    nexus_users_list: "{{ lookup('file', role_path + '/files/users.json') | from_json }}"
+
+- name: Create users in Nexus
+  ansible.builtin.uri:
+    url: "http://localhost:8081/service/rest/v1/security/users"
+    method: POST
+    user: "{{ nexus_admin_user | default('admin') }}"
+    password: "{{ nexus_admin_password }}" 
+    force_basic_auth: yes
+    body: "{{ item }}"
+    body_format: json
+    status_code: [200]
+  loop: "{{ nexus_users_list }}"
+  loop_control:
+    label: "{{ item.userId }}"
+  register: create_user_result
+  failed_when: 
+    - create_user_result.status != 200
+    - "'id already exists' not in create_user_result.content" 
+  ignore_errors: yes 

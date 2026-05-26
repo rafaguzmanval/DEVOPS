@@ -1,0 +1,26 @@
+- name: Create project repositories
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/project/{{ project_id }}/repositories"
+    method: POST
+    body:
+      project_id: "{{ project_id | int }}"
+      name: "{{ item.name }}"
+      git_url: "{{ item.url }}"
+      git_branch: "{{ item.branch }}"
+      ssh_key_id: "{{ keys_map[item.key_name] | int }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201]
+  register: repositories_responses
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ repositories_list }}"
+  changed_when: repositories_responses.status in [200, 201]
+
+- name: Map Names to IDs
+  set_fact:
+    repositories_map: "{{ repositories_map | default({}) | combine({ item.json.name: item.json.id }) }}"
+  loop: "{{ repositories_responses.results }}"
+  run_once: true

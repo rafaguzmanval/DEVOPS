@@ -1,0 +1,95 @@
+- name: Ensure /opt directory exists
+  ansible.builtin.file:
+    path: "{{ install_dir }}"
+    state: directory
+  become: yes
+
+- name: Create nexus user
+  ansible.builtin.user:
+    name: "{{ nexus_user }}"
+    system: yes
+    shell: /bin/false
+  become: yes
+
+- name: Download Nexus OSS tarball
+  ansible.builtin.get_url:
+    url: "{{ download_url }}"
+    dest: "{{ install_dir }}/nexus-{{ nexus_version }}.tar.gz"
+    mode: '0755'
+  become: yes
+
+- name: Create nexus_home directory
+  ansible.builtin.file:
+    path: "{{ nexus_home }}"
+    state: directory
+    owner: nexus
+    group: nexus
+    mode: '0755'
+  become: yes
+
+- name: Extract Nexus directly into nexus_home
+  ansible.builtin.unarchive:
+    src: "{{ install_dir }}/nexus-{{ nexus_version }}.tar.gz"
+    dest: "{{ nexus_home }}"
+    remote_src: yes
+    extra_opts:
+      - "--strip-components=1"
+  become: yes
+
+- name: Allow nexus user to run sudo without password
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ nexus_user }}"
+    content: "{{ nexus_user }} ALL=(ALL) NOPASSWD: ALL\n"
+    mode: '0440'
+  become: yes
+
+- name: Ensure ownership of Nexus directory
+  ansible.builtin.file:
+    path: "{{ nexus_home }}"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_user }}"
+    state: directory
+    recurse: yes
+  become: yes
+
+- name: Ensure ownership of Sonatype work directory
+  ansible.builtin.file:
+    path: "{{ sonatype_work }}"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_user }}"
+    state: directory
+    recurse: yes
+  become: yes
+
+- name: Check if nexus.rc exists
+  ansible.builtin.stat:
+    path: "{{ nexus_home }}/bin/nexus.rc"
+  register: nexus_rc
+
+- name: Configure nexus.rc to run as nexus user
+  ansible.builtin.lineinfile:
+    path: "{{ nexus_home }}/bin/nexus.rc"
+    regexp: '^#?run_as_user='
+    line: 'run_as_user="nexus"'
+  when: nexus_rc.stat.exists
+  become: yes
+
+- name: Create nexus.rc if missing
+  ansible.builtin.copy:
+    dest: "{{ nexus_home }}/bin/nexus.rc"
+    content: |
+      run_as_user="nexus"
+    owner: nexus
+    group: nexus
+    mode: '0644'
+  when: not nexus_rc.stat.exists
+  become: yes
+
+- name: Configure JVM options for Nexus
+  ansible.builtin.blockinfile:
+    path: "{{ nexus_home }}/bin/nexus.vmoptions"
+    block: |
+      -XX:MaxDirectMemorySize=2703m
+      -Djava.net.preferIPv4Stack=true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+  become: yes

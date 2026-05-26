@@ -1,0 +1,17 @@
+nexus_version: "3.86.2-01-linux-x86_64"   # Cambia la versión fácilmente
+nexus_user: "nexus"
+install_dir: "/opt"
+nexus_home: "{{ install_dir }}/nexus"
+sonatype_work: "{{ install_dir }}/sonatype-work"
+download_url: "https://download.sonatype.com/nexus/3/nexus-{{ nexus_version }}.tar.gz"
+keystore_password: "changeit"  # Cambiar por una contraseña segura
+ssl_port: 443  # Puerto para HTTPS (Nginx)
+docker_ssl_port: 8444 # Puerto HTTPS externo para Docker
+nexus_docker_http_port: 8082 # Puerto HTTP interno donde Nexus escucha para Docker
+nginx_ssl_dir: "/etc/nginx/ssl"
+url: "nexus02.boyaca.es"
+
+# SSL certificates paths - to be passed as extra-vars from deploy script
+# ssl_cert_path: ""
+# ssl_key_path: ""
+# ssl_ca_path: ""

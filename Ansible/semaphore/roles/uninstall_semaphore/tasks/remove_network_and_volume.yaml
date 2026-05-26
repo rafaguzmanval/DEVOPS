@@ -1,0 +1,33 @@
+- name: Remove Semaphore docker network
+  block:
+    - name: Check if network exists
+      community.docker.docker_network_info:
+        name: "{{ semaphore_network_name }}"
+      register: semaphore_net
+    - name: Remove network
+      when: semaphore_net.exists
+      community.docker.docker_network:
+        name: "{{ semaphore_network_name }}"
+        state: absent
+      register: net_result
+    - name: test
+      debug:
+        msg: "{{ net_result }}"
+    - name: Network info
+      when: net_result is defined and not net_result.failed
+      ansible.builtin.debug:
+        msg: "La red de la herramienta Semaphore UI ha sido eliminada correctamente"
+- name: Remove Semaphore UI docker volume
+  block:
+    - name: Get volume name
+      ansible.builtin.set_fact:
+        volume_name: "{{ mysql_volume | split(':') }}"
+    - name: Docker volume
+      community.docker.docker_volume:
+        name: "{{ volume_name.0 }}"
+        state: absent
+      register: vol_result
+    - name: Volume info
+      when: vol_result is defined and not vol_result.failed
+      ansible.builtin.debug:
+        msg: "El volumen del contenedor de MySQL ha sido eliminado correctamente"

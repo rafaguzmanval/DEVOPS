@@ -1,0 +1,15 @@
+- name: Check if container exist
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  loop:
+    - "{{ semaphore_hostname }}"
+    - "{{ mysql_hostname }}"
+  register: result
+- name: Delete Docker container
+  when: item is defined and item.exists
+  community.docker.docker_container:
+    name: "{{ item.container.Name | regex_replace('^/', '') }}"
+    state: absent
+  loop: "{{ result.results }}"
+  loop_control:
+    label: "Contenedor"

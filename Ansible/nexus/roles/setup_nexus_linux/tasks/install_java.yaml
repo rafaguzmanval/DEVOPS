@@ -1,0 +1,23 @@
+- name: Disable UFW firewall
+  become: true
+  community.general.ufw:
+    state: disabled
+- name: Update cache and installing java
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - acl
+      - openjdk-17-jdk
+    state: present
+  register: apt_result
+  ignore_errors: true
+- name: Check Java version
+  when: not apt_result.failed
+  block:
+    - name: Execute command
+      ansible.builtin.command: java --version
+      register: java_version
+    - name: Show Java version
+      ansible.builtin.debug:
+        msg: "{{ java_version.stdout }}"

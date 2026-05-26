@@ -1,0 +1,48 @@
+- name: Login to Semaphore and generate API token
+  block:
+    - name: Login to Semaphore and get session cookie
+      uri:
+        url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/auth/login"
+        method: POST
+        body: {"auth": "{{ semaphore_admin_user }}", "password": "{{ semaphore_admin_password }}"}
+        body_format: json
+        headers:
+          Content-Type: "application/json"
+          Accept: "application/json"
+        status_code: 204
+        return_content: yes
+      register: login_response
+      delegate_to: localhost
+      run_once: true
+
+    - name: Store login cookies for subsequent requests
+      set_fact:
+        semaphore_session_cookie: "semaphore={{ login_response.cookies.semaphore }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Generate new API token
+      uri:
+        url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/user/tokens"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Accept: "application/json"
+          Cookie: "{{ semaphore_session_cookie }}"
+        status_code: 200, 201
+        return_content: yes
+      register: token_response
+      delegate_to: localhost
+      run_once: true
+
+    - name: Extract API token from response
+      set_fact:
+        semaphore_api_token: "{{ token_response.json.id }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Display the generated API token
+      debug:
+        msg: "Generated API Token: {{ semaphore_api_token }}"
+      delegate_to: localhost
+      run_once: true

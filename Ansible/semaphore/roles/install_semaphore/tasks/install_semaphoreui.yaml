@@ -1,0 +1,31 @@
+- name: MySQL health check status
+  ansible.builtin.assert:
+    that:
+      - mysql_health_status == "healthy"
+    fail_msg: "MySQL no ha superado su prueba de vida y no se encuentra disponible"
+    success_msg: "MySQL lista para ser usada!"
+- name: Setup Semaphore UI Docker
+  community.docker.docker_container:
+    name: "{{ semaphore_hostname }}"
+    detach: true
+    image: "{{ semaphore_docker_image }}"
+    state: started
+    restart_policy: unless-stopped
+    memory: 300m
+    cpus: 0.5
+    networks:
+      - name: "{{ semaphore_network_name }}"
+        aliases:
+          - semaphoreui
+    ports:
+      - "{{ semaphore_ports }}"
+    env: "{{ semaphore_env_vars }}"
+    capabilities:
+      - NET_ADMIN
+      - NET_RAW
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/ping"]
+      interval: 10s          # Frecuencia de chequeos
+      timeout: 5s            # Tiempo máximo por chequeo
+      retries: 5             # Intentos fallidos antes de marcar como unhealthy
+      start_period: 60s      # Tiempo de gracia al inicio (Semaphore tarda en arrancar)

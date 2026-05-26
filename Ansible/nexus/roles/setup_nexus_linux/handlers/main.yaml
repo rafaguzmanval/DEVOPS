@@ -1,0 +1,16 @@
+- name: Reload Systemd
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: restart nexus
+  become: true
+  ansible.builtin.systemd_service:
+    name: nexus
+    state: restarted
+
+- name: restart nginx
+  become: true
+  service:
+    name: nginx
+    state: restarted

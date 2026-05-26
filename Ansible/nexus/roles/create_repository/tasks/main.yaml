@@ -1,0 +1,20 @@
+- name: Validate repository configuration
+  fail:
+    msg: "Variables 'repo_format' and 'repo_type' are required."
+  when: repo_format is not defined or repo_type is not defined
+
+- name: Create Repository
+  uri:
+    url: "{{ nexus_api_url }}/repositories/{{ repo_format }}/{{ repo_type }}"
+    method: POST
+    user: "{{ nexus_admin_user }}"
+    password: "{{ nexus_admin_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ repository_config }}"
+    status_code: 201, 204, 400
+  register: create_repo_result
+  changed_when: create_repo_result.status == 201 or create_repo_result.status == 204
+  failed_when: create_repo_result.status not in [201, 204, 400]

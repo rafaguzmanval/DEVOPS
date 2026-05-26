@@ -1,0 +1,31 @@
+- name: Setup MySQL Docker database
+  community.docker.docker_container:
+    name: "{{ mysql_hostname }}"
+    image: "{{ mysql_docker_image }}"
+    state: started
+    memory: 1224m
+    restart_policy: unless-stopped
+    cpus: 0.5
+    networks:
+      - name: "{{ semaphore_network_name }}"
+        aliases:
+          - mysql-bbdd
+    env: "{{ mysql_env_vars }}"
+    volumes:
+      - "{{ mysql_volume }}"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "{{ mysql_user }}", "--password={{ mysql_user_password }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+- name: Wait until MySQL is ready
+  community.docker.docker_container_info:
+    name: "{{ mysql_hostname }}"
+  register: health_status
+  until: health_status.container.State.Health.Status == "healthy"
+  retries: 10
+  delay: 5
+- name: Save MySQL health_status
+  ansible.builtin.set_fact:
+    mysql_health_status: "{{ health_status.container.State.Health.Status }}"

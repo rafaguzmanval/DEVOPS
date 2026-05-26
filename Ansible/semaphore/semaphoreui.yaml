@@ -1,0 +1,4 @@
+- name: Execute Semaphore tasks
+  hosts: "{{ host }}"
+  roles:
+    - "{{ role_to_execute }}"

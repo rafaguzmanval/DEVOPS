@@ -1,0 +1,58 @@
+- name: Install Nginx
+  package:
+    name: nginx
+    state: present
+
+- name: Create SSL directory for Nginx
+  file:
+    path: "{{ nginx_ssl_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy SSL certificate to Nginx
+  copy:
+    src: "{{ ssl_cert_path }}"
+    dest: "{{ nginx_ssl_dir }}/fullchain.pem"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx
+
+- name: Copy SSL private key to Nginx
+  copy:
+    src: "{{ ssl_key_path }}"
+    dest: "{{ nginx_ssl_dir }}/boyaca-key.pem"
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart nginx
+
+- name: Configure Nginx for Nexus
+  template:
+    src: nexus_nginx.conf.j2
+    dest: /etc/nginx/sites-available/nexus
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart nginx
+
+- name: Enable Nexus site in Nginx
+  file:
+    src: /etc/nginx/sites-available/nexus
+    dest: /etc/nginx/sites-enabled/nexus
+    state: link
+  notify: restart nginx
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Ensure Nginx is running and enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes

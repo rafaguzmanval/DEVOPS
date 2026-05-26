@@ -1,0 +1,57 @@
+- name: Create NPM Blob Store
+  include_role:
+    name: create_blobstore
+
+- name: Create Npm Hosted Repository
+  include_role:
+    name: create_repository
+  vars:
+    repo_format: "npm"
+    repo_type: "hosted"
+    repository_config:
+      name: "npm-hosted"
+      online: true
+      storage:
+        blobStoreName: "{{ blobstore_name }}"
+        strictContentTypeValidation: true
+        writePolicy: "ALLOW"
+
+- name: Create Npm Proxy Repository
+  include_role:
+    name: create_repository
+  vars:
+    repo_format: "npm"
+    repo_type: "proxy"
+    repository_config:
+      name: "npm-proxy"
+      online: true
+      storage:
+        blobStoreName: "{{ blobstore_name }}"
+        strictContentTypeValidation: true
+      proxy:
+        remoteUrl: "https://registry.npmjs.org"
+        contentMaxAge: 1440
+        metadataMaxAge: 1440
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      httpClient:
+        blocked: false
+        autoBlock: true
+
+- name: Create Npm Group Repository
+  include_role:
+    name: create_repository
+  vars:
+    repo_format: "npm"
+    repo_type: "group"
+    repository_config:
+      name: "npm-group"
+      online: true
+      storage:
+        blobStoreName: "{{ blobstore_name }}"
+        strictContentTypeValidation: true
+      group:
+        memberNames:
+          - "npm-hosted"
+          - "npm-proxy"

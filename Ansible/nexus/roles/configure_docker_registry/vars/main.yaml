@@ -1,0 +1,2 @@
+nexus_docker_http_port: 8082
+blobstore_name: "docker-blobstore"

@@ -1,0 +1,4 @@
+nexus_api_url: "http://localhost:8081/service/rest/v1"
+nexus_admin_user: "admin"
+# nexus_admin_password: required
+# realm_id: required (e.g., "DockerToken")

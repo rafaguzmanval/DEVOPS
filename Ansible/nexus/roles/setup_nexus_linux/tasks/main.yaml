@@ -1,0 +1,7 @@
+- name: Set up Nexus
+  include_tasks: "{{ item }}"
+  loop:
+    - install_java.yaml
+    - install_nexus.yaml
+    - deploy_nexus.yaml
+    - configure_ssl.yaml

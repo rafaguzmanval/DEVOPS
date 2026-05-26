@@ -1,0 +1,17 @@
+- name: Setup New Project in Semaphore
+  block:
+    - name: Ejecutar configuración del proyecto
+      ansible.builtin.include_tasks: "{{ task_file }}"
+      loop:
+        - generate_api_token.yaml
+        - create_project.yaml
+        - create_keys.yaml
+        - create_repositories.yaml
+        - create_inventory.yaml
+        - create_variable_groups.yaml
+        - create_task_templates.yaml
+      loop_control:
+        loop_var: task_file
+  always:
+    - name: Garantizar la destrucción del token
+      ansible.builtin.include_tasks: destroy_api_token.yaml

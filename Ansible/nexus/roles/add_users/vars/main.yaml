@@ -1,0 +1,3 @@
+# Variables para el rol add_users
+# ansible_host se coge automáticamente del inventario (es la IP de la máquina destino)
+nexus_admin_password: "admin123_change_me" # Contraseña por defecto si no se pasa por CLI

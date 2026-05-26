@@ -1,0 +1,5 @@
+nexus_api_url: "http://localhost:8081/service/rest/v1"
+nexus_admin_user: "admin"
+# nexus_admin_password: required
+# blobstore_name: required
+# blobstore_path: optional (defaults to name)

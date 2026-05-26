@@ -1,0 +1,13 @@
+- name: Destroy API token
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/user/tokens/{{ semaphore_api_token }}"
+    method: DELETE
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+      Cookie: "{{ semaphore_session_cookie }}"
+    status_code: 200, 204
+    return_content: yes
+  register: token_response
+  delegate_to: localhost
+  run_once: true

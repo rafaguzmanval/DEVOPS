@@ -1,0 +1,28 @@
+- name: Create project keys
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/project/{{ project_id }}/keys"
+    method: POST
+    body:
+      project_id: "{{ project_id | int }}"
+      name: "{{ item.name }}"
+      type: "{{ item.type }}"
+      override_secret: true
+      login_password:
+        login: "{{ item.login }}"
+        password: "{{ item.password }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201]
+  register: project_key_responses
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ keys_list }}"
+  changed_when: project_key_responses.status in [200, 201]
+
+- name: Map Names to IDs
+  set_fact:
+    keys_map: "{{ keys_map | default({}) | combine({ item.json.name: item.json.id }) }}"
+  loop: "{{ project_key_responses.results }}"
+  run_once: true

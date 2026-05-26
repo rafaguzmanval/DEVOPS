@@ -1,0 +1,23 @@
+- name: Get current active realms
+  uri:
+    url: "{{ nexus_api_url }}/security/realms/active"
+    method: GET
+    user: "{{ nexus_admin_user }}"
+    password: "{{ nexus_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  register: current_realms
+
+- name: Activate realm {{ realm_id }}
+  uri:
+    url: "{{ nexus_api_url }}/security/realms/active"
+    method: PUT
+    user: "{{ nexus_admin_user }}"
+    password: "{{ nexus_admin_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: "{{ current_realms.json + [realm_id] | unique }}"
+    status_code: 204
+  when: realm_id not in current_realms.json

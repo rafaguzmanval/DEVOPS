@@ -1,0 +1,5 @@
+- name: Uninstall Semaphore UI
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop:
+    - stop_and_delete_containers.yaml
+    - remove_network_and_volume.yaml

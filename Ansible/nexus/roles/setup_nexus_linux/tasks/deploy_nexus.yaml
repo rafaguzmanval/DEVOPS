@@ -1,0 +1,63 @@
+
+- name: Create Nexus systemd service file
+  ansible.builtin.template:
+    src: nexus.service.j2
+    dest: /etc/systemd/system/nexus.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify:
+    - Reload Systemd
+
+- name: Enable and start Nexus service
+  ansible.builtin.systemd:
+    name: nexus
+    enabled: yes
+    state: started
+  become: true
+
+- name: Check Nexus service status
+  ansible.builtin.command:
+    cmd: systemctl status nexus
+  register: nexus_status
+  ignore_errors: yes
+  become: true
+
+- name: Show Nexus service status
+  ansible.builtin.debug:
+    var: nexus_status.stdout_lines
+
+- name: Wait for Nexus admin password file to be generated
+  wait_for:
+    path: "{{ sonatype_work }}/nexus3/admin.password"
+    state: present
+    timeout: 300
+  register: password_file_check
+  ignore_errors: yes
+
+- name: Read Nexus admin password
+  slurp:
+    src: "{{ sonatype_work }}/nexus3/admin.password"
+  register: admin_password_file
+  when: password_file_check.path is defined
+  ignore_errors: yes
+
+- name: SHOW INITIAL ADMIN PASSWORD
+  debug:
+    msg: 
+      - "========================================================"
+      - "INITIAL NEXUS ADMIN PASSWORD:"
+      - "{{ admin_password_file['content'] | b64decode }}"
+      - "========================================================"
+  when: admin_password_file.content is defined
+
+- name: Save admin password to local file
+  copy:
+    content: "{{ admin_password_file['content'] | b64decode }}"
+    dest: "./nexus_admin_password.txt"
+    mode: '0600'
+  delegate_to: localhost
+  become: false
+  when: admin_password_file.content is defined
+

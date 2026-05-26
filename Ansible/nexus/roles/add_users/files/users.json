@@ -1,0 +1,220 @@
+[
+    {
+        "userId": "jLedo",
+        "firstName": "Javier",
+        "lastName": "Ledo",
+        "emailAddress": "jledo.ext@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-admin",
+            "nx-developer",
+            "nx-anonymous"
+        ],
+        "externalRoles": [],
+        "password": "V9p$R7k2uE@wG4aS8zLp1QhF0cTm3DnB"
+    },
+    {
+        "userId": "cAlonso",
+        "firstName": "Carlos",
+        "lastName": "Alonso",
+        "emailAddress": "cAlonso@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "J2m!P8rC5tA7kB4x$F9qZ1sH6eL0uW3v"
+    },
+    {
+        "userId": "chAlonso",
+        "firstName": "Christian",
+        "lastName": "Alonso Da Cruz",
+        "emailAddress": "chAlonso@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "K7x$T1qE9mP4vH6fR3jW8nS0yC2bZ5aL"
+    },
+    {
+        "userId": "maSanchez",
+        "firstName": "Manuel",
+        "lastName": "Sanchez",
+        "emailAddress": "mdSanchez@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-admin",
+            "nx-developer",
+            "nx-anonymous"
+        ],
+        "externalRoles": [],
+        "password": "Q4f@L8vM3bS1kD6tW9pC0rE7zH2nJ5aU"
+    },
+    {
+        "userId": "nSanchez",
+        "firstName": "Nuria",
+        "lastName": "Sanchez",
+        "emailAddress": "nSanchez@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "M6h#Q9rP4yT2wF8nJ1sV0gB7cD3xL5kA"
+    },
+    {
+        "userId": "mGeneroso",
+        "firstName": "Miguel",
+        "lastName": "Generoso",
+        "emailAddress": "mgeneroso.ext@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "S8n@B3dH7pT5qW0mL2vF9rC6yE1jX4kA"
+    },
+    {
+        "userId": "jFernandez",
+        "firstName": "Jesus",
+        "lastName": "Fernandez",
+        "emailAddress": "jfernandez.ext@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "H1v$N5gC8mQ2rP6sK0xD4jF9yT3bU7aL"
+    },
+    {
+        "userId": "iSanchez",
+        "firstName": "Nacho",
+        "lastName": "Sanchez",
+        "emailAddress": "igSanchez@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "Z3f$W1qP9bE6kT2sY8rH4nC0mV7dJ5aL"
+    },
+    {
+        "userId": "aBautista",
+        "firstName": "Antonio",
+        "lastName": "Bautista",
+        "emailAddress": "abautista.ext@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-admin",
+            "nx-developer",
+            "nx-anonymous"
+        ],
+        "externalRoles": [],
+        "password": "E0p#C6tM2xW7qS9lJ5fB1rG8nD3hV4aK"
+    },
+    {
+        "userId": "lAlvarez",
+        "firstName": "Luis",
+        "lastName": "Alvarez",
+        "emailAddress": "lAlvarez@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "R9u@F2pH5tD7kM1sQ4cW8nL0yG3bJ6aV"
+    },
+    {
+        "userId": "plexus",
+        "firstName": "plex",
+        "lastName": "us",
+        "emailAddress": "mdsanchez@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "Y4m%Q6vP1bR8tS3jW0dF9nC2kL7hE5aZ"
+    },
+    {
+        "userId": "rCrespo",
+        "firstName": "Roberto",
+        "lastName": "Crespo",
+        "emailAddress": "rCrespo@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-admin",
+            "nx-developer",
+            "nx-anonymous"
+        ],
+        "externalRoles": [],
+        "password": "U2k@J7hD9pM4rC1vW8tS5fB0yQ6xN3aL"
+    },
+    {
+        "userId": "jHurtado",
+        "firstName": "Jacinto",
+        "lastName": "Hurtado",
+        "emailAddress": "jHurtado@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "T5c@P8kB1nW3gF7mL9vS0dE4xH2jQ6aR"
+    },
+    {
+        "userId": "vTienza",
+        "firstName": "Victor",
+        "lastName": "Tienza",
+        "emailAddress": "vTienza@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "A9s$L3tN6eP2qH8mD1vC5rF0yK7xJ4aW"
+    },
+    {
+        "userId": "jenkins",
+        "firstName": "Jenkins",
+        "lastName": "Jenkins",
+        "emailAddress": "infraestructuras@boyaca.es",
+        "source": "default",
+        "status": "active",
+        "readOnly": false,
+        "roles": [
+            "nx-developer"
+        ],
+        "externalRoles": [],
+        "password": "Jenkins2025"
+    }
+]

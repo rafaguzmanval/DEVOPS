@@ -1,0 +1,30 @@
+- name: Create project inventory
+  uri:
+    url: "http://{{ ansible_host }}:{{ semaphore_external_port }}/api/project/{{ project_id }}/inventory"
+    method: POST
+    body:
+      project_id: "{{ project_id | int }}"
+      name: "{{ item.name }}"
+      type: "{{ item.type }}"
+      ssh_key_id: "{{ keys_map[item.ssh_key_id] | default(none) }}"
+      become_key_id: "{{ keys_map[item.become_key_id] | default(none) }}"
+      repository_id: "{{ repositories_map[item.repository_id] | default(none) }}"
+      inventory: "{{ item.inventory }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ semaphore_api_token }}"
+      Content-Type: "application/json"
+    status_code: [200, 201]
+  register: inventories_responses
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ inventories_list }}"
+  when: inventories_list is defined and inventories_list | length > 0
+  changed_when: inventories_responses.status in [200, 201]
+
+- name: Map Names to IDs
+  set_fact:
+    inventories_map: "{{ inventories_map | default({}) | combine({ item.json.name: item.json.id }) }}"
+  loop: "{{ inventories_responses.results }}"
+  when: inventories_list is defined and inventories_list | length > 0
+  run_once: true

@@ -1,0 +1,15 @@
+nexus_api_url: "http://localhost:8081/service/rest/v1"
+nexus_admin_user: "admin"
+# nexus_admin_password: se debe pasar como extra-var
+
+# Ejemplo de uso (estas variables deben pasarse al invocar el rol):
+# repo_format: "maven"  # maven, npm, docker, raw, etc.
+# repo_type: "hosted"   # hosted, proxy, group
+# repo_name: "mi-repo"
+# repository_config:
+#   name: "mi-repo"
+#   online: true
+#   storage:
+#     blobStoreName: "default"
+#     writePolicy: "ALLOW"
+#   ... (configuración específica del formato)
