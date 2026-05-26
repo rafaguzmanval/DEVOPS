@@ -1,1 +1,1 @@
-aws help
+curl https://www.google.com
