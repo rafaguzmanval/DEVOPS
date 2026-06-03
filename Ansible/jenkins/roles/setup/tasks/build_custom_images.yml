@@ -1,3 +1,6 @@
+# Build custom agent images on the target Docker daemon.
+# These are referenced by the JCasC Docker Cloud template.
+
 - name: Build dind image inside remote docker
   community.docker.docker_image:
     name: "dind:latest"

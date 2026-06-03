@@ -1,8 +1,17 @@
----
+# Defaults for the reconfigure role
+# Used when jenkins.yml is invoked with role_to_execute=reconfigure
+
+# Jenkins admin credentials for API calls
 jenkins_admin_user: "admin"
 jenkins_admin_password: "admin"  # override via -e for production
+
+# Container identification
 jenkins_container_name: "jenkins"
 jenkins_host_port: 8080
+
+# Path where Docker Compose project lives on the target host
 jenkins_compose_dir: "/opt/jenkins"
+
+# Default Docker registry credentials (override in files/credentials.yml or via -e)
 docker_registry_username: "docker-user"
 docker_registry_password: "docker-password"

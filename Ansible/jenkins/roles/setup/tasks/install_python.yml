@@ -1,3 +1,6 @@
+# Python3 and requests are required by the community.docker collection
+# for Docker-related modules to work remotely.
+
 - name: Install Python dependencies for Docker modules
   block:
     - name: Install pip and python-requests (RHEL/Alma)

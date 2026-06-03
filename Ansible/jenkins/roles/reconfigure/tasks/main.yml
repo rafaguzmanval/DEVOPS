@@ -1,7 +1,16 @@
 ---
+# Reconfigure role — post-deployment updates via JCasC reload
+# Generates templates, copies them into the Jenkins volume, then reloads
+# Tags allow partial runs: --tags users runs only user-related tasks
+
 - name: Check Jenkins connectivity
+  # Verifies the container is running and Jenkins port is open
   include_tasks: check_jenkins.yml
   tags: always
+
+# ── Load data files ──────────────────────────────────────────────────
+# Falls back to files/credentials.yml and files/users.yml when no inline
+# vars are passed. These define additional_credentials and additional_users.
 
 - name: Load credentials data file
   include_vars:
@@ -14,6 +23,10 @@
     file: "{{ playbook_dir }}/files/users.yml"
   when: additional_users is not defined
   tags: users
+
+# ── Generate JCasC templates ─────────────────────────────────────────
+# Renders each template into the Docker Compose project directory so
+# they remain consistent with the local repo state.
 
 - name: Generate JCasC credentials configuration
   template:
@@ -35,6 +48,11 @@
     dest: "{{ jenkins_compose_dir }}/jcasc/jcasc.yaml"
     mode: '0644'
   tags: docker-cloud
+
+# ── Copy to Jenkins volume ───────────────────────────────────────────
+# The Jenkins container mounts /var/jenkins_home from the host, so
+# files placed there are immediately visible inside the container.
+# JCasC watches this directory for changes.
 
 - name: Copy JCasC configs to Jenkins volume
   copy:
@@ -61,12 +79,17 @@
   tags: jobs
 
 - name: Copy job definitions into Jenkins volume
+  # Uses fileglob lookup on the control node to find local job YAML files
   copy:
     src: "{{ item }}"
     dest: /var/jenkins_home/jobs-config/
     mode: '0644'
   with_fileglob: "{{ playbook_dir }}/files/jobs/*.yml"
   tags: jobs
+
+# ── Reload ───────────────────────────────────────────────────────────
+# Jenkins CSRF protection requires a crumb and matching session cookie.
+# Both are obtained in a single shell invocation to keep the session alive.
 
 - name: Reload JCasC configuration via API
   shell: |

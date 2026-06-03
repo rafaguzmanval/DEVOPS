@@ -1,3 +1,9 @@
+# Jenkins users managed by the reconfigure role
+# Each entry under additional_users is rendered by
+# roles/reconfigure/templates/jcasc-users.yaml.j2
+#
+# Fields: id (login), password, name (display name)
+# The admin user must exist for API-based reload to work.
 ---
 additional_users:
   - id: "admin"

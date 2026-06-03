@@ -1,4 +1,8 @@
 ---
+# Pre-flight checks before any reconfigure operation
+# Ensures the Jenkins container is running and the HTTP port is reachable.
+# Aborts early with a clear error if Jenkins is not available.
+
 - name: Check if Jenkins is running
   command: "docker ps --filter name={{ jenkins_container_name }} --format {% raw %}{{.Names}}{% endraw %}"
   register: jenkins_running

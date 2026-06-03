@@ -76,13 +76,13 @@
           - containerd.io
           - docker-compose-plugin
         state: present
-        # Esto soluciona conflictos con paquetes de Podman que vienen en RHEL 9
+        # Avoids conflicts with Podman packages bundled in RHEL 9
         nobest: true
       become: true
 
     - name: Ensure Docker service is started and enabled
-      # ESTE ES EL PASO QUE TE FALTABA
-      # En RHEL, dnf instala el paquete pero NO arranca el servicio ni el socket.
+      # Unlike Debian, dnf on RHEL installs the package but does NOT
+      # start the service nor enable the socket automatically.
       systemd:
         name: docker
         state: started
@@ -98,6 +98,6 @@
   become: true
 
 - name: Force a restart of the SSH session to apply group changes
-  # Si Ansible intenta usar Docker justo después de añadir el grupo, fallará
-  # porque la sesión actual no sabe que ya eres del grupo 'docker'.
+  # Without this, subsequent Docker tasks would fail because the current
+  # SSH session does not reflect the updated group membership.
   meta: reset_connection

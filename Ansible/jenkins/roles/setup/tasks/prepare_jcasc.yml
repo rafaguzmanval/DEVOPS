@@ -1,3 +1,7 @@
+# Generate all configuration files needed by Docker Compose and Jenkins
+# including the Compose file itself, all JCasC templates, and the Docker
+# build context (Dockerfiles, plugins, groovy scripts, jobs).
+
 - name: Create Docker Compose directory
   file:
     path: "{{ jenkins_compose_dir }}"

@@ -5,7 +5,7 @@
   community.docker.docker_compose_v2:
     project_src: "{{ jenkins_compose_dir }}"
     state: present
-    wait: true # Recomendado: espera a que los contenedores estén 'healthy'
+    wait: true  # Blocks until containers report healthy
   register: compose_result
   tags:
     - setup
@@ -16,7 +16,7 @@
 - name: Healthcheck and Log Capture
   block:
     - name: Ensure Jenkins is stable and responding
-      uri: # Es mejor usar el módulo 'uri' que 'curl' por shell
+      uri:  # Use uri module instead of shell curl for idempotency
         url: "http://localhost:{{ jenkins_host_port }}/login"
         status_code: 200
       register: jenkins_stable
@@ -27,7 +27,7 @@
 
   rescue:
     - name: Get Jenkins container logs on failure
-      # Usamos el nombre del servicio definido en tu docker-compose.yml
+      # Use the project name from the compose result for accuracy
       command: "docker compose -p {{ compose_result.project_name }} logs"
       register: container_logs
       changed_when: false

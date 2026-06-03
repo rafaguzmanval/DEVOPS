@@ -1,7 +1,7 @@
+# Jenkins job definitions consumed by files/scripts/process_jobs.groovy
+# Structure supports nested folders and pipeline jobs.
+# See the groovy script for the exact schema expected.
 ---
-# Job: sample-project
-# Git repository: https://github.com/rafaguzmanval/DEVOPS
-
 config:
   - folder: "sample-folder"
     children:
