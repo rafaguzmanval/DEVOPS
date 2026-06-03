@@ -18,7 +18,7 @@ jenkins_docker_cloud_network_name: "jenkins-network"
 
 # Credenciales de administrador
 jenkins_admin_user: "admin"
-jenkins_admin_password: "admin"
+jenkins_admin_password: "admin"  # set via -e or group_vars for production
 
 # Archivos de configuración externos
 jenkins_plugins_file: "plugins.yml"

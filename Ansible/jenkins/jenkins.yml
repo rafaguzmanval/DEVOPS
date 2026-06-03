@@ -1,0 +1,22 @@
+---
+# Jenkins Management — Universal Dispatcher
+# Aligned with Nexus/Semaphore dispatcher pattern
+#
+# Usage:
+#   ansible-playbook jenkins.yml -e "host=jenkins_servers role_to_execute=setup"
+#   ansible-playbook jenkins.yml -e "host=jenkins_servers role_to_execute=reconfigure"
+#
+# Supported role_to_execute values:
+#   setup       — Full deploy: Docker, JCasC, Compose
+#   reconfigure — Regenerate all JCasC configs + reload
+
+- name: Jenkins Management
+  hosts: "{{ host | default('jenkins') }}"
+  become: true
+
+  roles:
+    - role: setup
+      when: role_to_execute | default('setup') == 'setup'
+
+    - role: reconfigure
+      when: role_to_execute == 'reconfigure'

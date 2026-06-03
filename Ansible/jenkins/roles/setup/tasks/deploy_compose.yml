@@ -3,7 +3,7 @@
 # Tags: setup, deploy, always
 - name: Deploy Jenkins stack with Docker Compose
   community.docker.docker_compose_v2:
-    project_src: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+    project_src: "{{ jenkins_compose_dir }}"
     state: present
     wait: true # Recomendado: espera a que los contenedores estén 'healthy'
   register: compose_result
@@ -17,7 +17,7 @@
   block:
     - name: Ensure Jenkins is stable and responding
       uri: # Es mejor usar el módulo 'uri' que 'curl' por shell
-        url: "http://localhost:{{ jenkins_host_port | default(8080) }}/login"
+        url: "http://localhost:{{ jenkins_host_port }}/login"
         status_code: 200
       register: jenkins_stable
       retries: 3
@@ -32,7 +32,7 @@
       register: container_logs
       changed_when: false
       args:
-        chdir: "{{ jenkins_compose_dir | default('/opt/jenkins') }}"
+        chdir: "{{ jenkins_compose_dir }}"
 
     - name: Display Jenkins logs
       debug:

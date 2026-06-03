@@ -1,0 +1,6 @@
+---
+- name: Copy job definition file to compose directory
+  copy:
+    src: "{{ job_file.path }}"
+    dest: "{{ jenkins_compose_dir }}/jobs/{{ job_file.path | basename }}"
+    mode: '0644'

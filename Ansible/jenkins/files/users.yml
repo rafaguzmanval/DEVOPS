@@ -1,0 +1,8 @@
+---
+additional_users:
+  - id: "admin"
+    password: "admin"
+    name: "Administrator"
+  - id: "developer"
+    password: "dev123"
+    name: "Developer"

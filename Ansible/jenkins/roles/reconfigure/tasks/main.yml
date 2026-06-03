@@ -1,0 +1,85 @@
+---
+- name: Check Jenkins connectivity
+  include_tasks: check_jenkins.yml
+  tags: always
+
+- name: Load credentials data file
+  include_vars:
+    file: "{{ playbook_dir }}/files/credentials.yml"
+  when: additional_credentials is not defined
+  tags: credentials
+
+- name: Load users data file
+  include_vars:
+    file: "{{ playbook_dir }}/files/users.yml"
+  when: additional_users is not defined
+  tags: users
+
+- name: Generate JCasC credentials configuration
+  template:
+    src: jcasc-credentials.yaml.j2
+    dest: "{{ jenkins_compose_dir }}/jcasc/jcasc-credentials.yaml"
+    mode: '0644'
+  tags: credentials
+
+- name: Generate JCasC users configuration
+  template:
+    src: jcasc-users.yaml.j2
+    dest: "{{ jenkins_compose_dir }}/jcasc/jcasc-users.yaml"
+    mode: '0644'
+  tags: users
+
+- name: Generate JCasC main (Docker Cloud) configuration
+  template:
+    src: jcasc.yaml.j2
+    dest: "{{ jenkins_compose_dir }}/jcasc/jcasc.yaml"
+    mode: '0644'
+  tags: docker-cloud
+
+- name: Copy JCasC configs to Jenkins volume
+  copy:
+    src: "{{ jenkins_compose_dir }}/jcasc/{{ item }}"
+    dest: "/var/jenkins_home/casc_configs/{{ item }}"
+    remote_src: true
+    mode: '0644'
+  loop:
+    - jcasc-credentials.yaml
+    - jcasc-users.yaml
+    - jcasc.yaml
+    - jcasc-jobs.yaml
+  tags:
+    - credentials
+    - users
+    - docker-cloud
+    - jobs
+
+- name: Ensure jobs-config directory exists in Jenkins volume
+  file:
+    path: /var/jenkins_home/jobs-config
+    state: directory
+    mode: '0755'
+  tags: jobs
+
+- name: Copy job definitions into Jenkins volume
+  copy:
+    src: "{{ item }}"
+    dest: /var/jenkins_home/jobs-config/
+    mode: '0644'
+  with_fileglob: "{{ playbook_dir }}/files/jobs/*.yml"
+  tags: jobs
+
+- name: Reload JCasC configuration via API
+  shell: |
+    CRUMB=$(curl -s -c /tmp/jenkins-cookies \
+      -u {{ jenkins_admin_user }}:{{ jenkins_admin_password }} \
+      "http://localhost:{{ jenkins_host_port }}/crumbIssuer/api/json" \
+      | python3 -c "import sys,json;print(json.load(sys.stdin).get('crumb',''))")
+    curl -s -b /tmp/jenkins-cookies \
+      -u {{ jenkins_admin_user }}:{{ jenkins_admin_password }} \
+      -H "Jenkins-Crumb: $CRUMB" \
+      -X POST \
+      -o /dev/null -w "%{http_code}" \
+      "http://localhost:{{ jenkins_host_port }}/configuration-as-code/reload"
+  register: reload_result
+  changed_when: reload_result.stdout in ["200", "302"]
+  tags: reload

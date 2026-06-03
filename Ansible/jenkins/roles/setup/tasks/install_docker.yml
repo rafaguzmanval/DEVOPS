@@ -61,11 +61,12 @@
 - name: Install Docker (RHEL/CentOS/Rocky/Alma)
   block:
     - name: Add Docker repository
-      # En RHEL 9 no usamos yum_repository manual con variables de arquitectura si podemos evitarlo.
-      # Es más seguro usar el comando oficial para que autodetecte todo.
-      command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-      become: true
-      changed_when: false
+      ansible.builtin.yum_repository:
+        name: docker-ce
+        description: Docker CE Repository
+        baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+        gpgcheck: false
+        state: present
 
     - name: Install Docker
       dnf:

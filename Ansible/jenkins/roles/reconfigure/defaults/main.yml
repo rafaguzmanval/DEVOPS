@@ -1,0 +1,8 @@
+---
+jenkins_admin_user: "admin"
+jenkins_admin_password: "admin"  # override via -e for production
+jenkins_container_name: "jenkins"
+jenkins_host_port: 8080
+jenkins_compose_dir: "/opt/jenkins"
+docker_registry_username: "docker-user"
+docker_registry_password: "docker-password"

@@ -14,7 +14,7 @@ config:
         repo: "https://github.com/rafaguzmanval/DEVOPS.git"
         branch: "develop"
         path: "Ansible/jenkins/files/pipelines/sample-project.Jenkinsfile"
-        cron: "" # Sin ejecución programada
+        cron: ""
       - folder: "nested-folder"
         children:
           - pipeline: "nested-sample"
@@ -22,3 +22,10 @@ config:
             branch: "main"
             path: "Ansible/jenkins/files/pipelines/nested-sample.Jenkinsfile"
             cron: ""
+  - folder: "new-folder"
+    children:
+      - pipeline: "hello-world"
+        repo: "https://github.com/rafaguzmanval/DEVOPS.git"
+        branch: "main"
+        path: "Ansible/jenkins/files/pipelines/hello-world.Jenkinsfile"
+        cron: ""

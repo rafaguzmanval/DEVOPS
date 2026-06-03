@@ -1,0 +1,19 @@
+# Jenkins Configuration as Code - Users & Security
+# Managed by Ansible - Do not edit manually
+
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+{% for user in additional_users | default([]) %}
+        - id: "{{ user.id }}"
+          password: "{{ user.password }}"
+          name: "{{ user.name }}"
+{% endfor %}
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  disableRememberMe: false

@@ -1,0 +1,13 @@
+---
+- name: Check if Jenkins is running
+  command: "docker ps --filter name={{ jenkins_container_name }} --format {% raw %}{{.Names}}{% endraw %}"
+  register: jenkins_running
+  changed_when: false
+  failed_when: jenkins_running.stdout == ""
+
+- name: Wait for Jenkins to be ready
+  wait_for:
+    host: localhost
+    port: "{{ jenkins_host_port }}"
+    timeout: 60
+    delay: 5
